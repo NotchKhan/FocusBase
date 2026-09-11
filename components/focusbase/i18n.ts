@@ -27,7 +27,14 @@ const extra:Record<string,string>={
   'Никто не придёт спасать твой план.':'No one is coming to save your plan.','Время не вернётся. Пропущенная практика сама не станет навыком.':'Time will not return. Missed practice will not become skill on its own.','Намерение ничего не меняет. Меняет только действие.':'Intention changes nothing. Action changes everything.','Каждый отданный прокрастинации день потом оплачивается усилием.':'Every day given to procrastination is paid back with effort.','Талант без повторений проигрывает тому, кто продолжает.':'Talent without repetition loses to the one who keeps going.','Цель не обязана случиться. Без часов работы это только желание.':'A goal does not happen by itself. Without hours of work, it is only a wish.','Самая неприятная конкуренция — с версией себя, которой ты мог стать.':'The hardest competition is with the person you could have become.',
   'Статья':'Article','Видео':'Video','Курс':'Course','Учебник':'Textbook','Документ':'Document','Инструмент':'Tool','Поиск материалов':'Search materials','Направление материалов':'Material direction','Тип материалов':'Material type','Статус материала':'Material status','Сохранить ссылку':'Save link','Поиск заметок':'Search notes','Свои данные. Своя структура. Import CSV':'Your data. Your structure. Import CSV','Место для ваших таблиц':'A place for your tables','Сравнивайте университеты, записывайте пробники и достижения.':'Compare universities, track mock tests and achievements.','Создать таблицу':'Create table','Эта неделя':'This week','Добавить школьный распорядок':'Add school routine','Сохранить задачи как шаблон':'Save tasks as template','Шаблон недели':'Week template','Применить':'Apply','Задачи можно перетащить на день или изменить дату в карточке. Свободное время остаётся свободным.':'Drag tasks to a day or change the date in the task card. Free time stays free.','задач':'tasks','Пн':'Mon','Вт':'Tue','Ср':'Wed','Че':'Thu','Пя':'Fri','Су':'Sat','Во':'Sun','По':'Mon'
 };
-const allCopy={...copy,...extra};
+const studyCopy:Record<string,string>={
+'Календарь':'Calendar','Календарь месяца':'Month calendar','Экзамены':'Exams','ПОДГОТОВКА':'EXAM PREP','UNT / ҰБТ':'UNT / ҰБТ',
+'Дополнительно':'More options','Новая цель':'New goal','Изменить цель':'Edit goal','Новая цель экзамена':'New exam goal','Цели экзаменов':'Exam goals','События календаря':'Calendar events',
+'Новое событие':'New event','Изменить событие':'Edit event','Своя цитата':'Your quote','Событие':'Event','Цель':'Goal','Материал сохранён':'Material saved','Цитата обновлена':'Quote updated',
+'Занятие, пробник или встреча':'Session, mock test or meeting','Материал':'Material','Без связи':'No link','Все типы':'All types','Все коллекции':'All collections','Закрыть':'Close','Перемещено в корзину':'Moved to trash',
+'Например: IELTS Reading — Passage 2':'For example: IELTS Reading — Passage 2','Что сделать и какой результат получить?':'What will you do, and what is the expected result?'
+};
+const allCopy={...copy,...extra,...studyCopy};
 
 const weekdays:Record<string,string>={понедельник:'Monday',вторник:'Tuesday',среда:'Wednesday',четверг:'Thursday',пятница:'Friday',суббота:'Saturday',воскресенье:'Sunday'};
 const months:Record<string,string>={января:'January',февраля:'February',марта:'March',апреля:'April',мая:'May',июня:'June',июля:'July',августа:'August',сентября:'September',октября:'October',ноября:'November',декабря:'December'};
@@ -61,11 +68,12 @@ export function translateDocument(language:Language){
   const nodes:Text[]=[];let node:Node|null;
   while((node=walk.nextNode()))nodes.push(node as Text);
   for(const text of nodes){
-    if(text.parentElement?.closest('script,style,textarea,input,[contenteditable="true"]'))continue;
+    if(text.parentElement?.closest('script,style,textarea,input,[contenteditable="true"],[data-no-translate],[data-localized]'))continue;
     const next=translateText(text.nodeValue||'',language);
     if(next!==text.nodeValue)text.nodeValue=next;
   }
   for(const el of Array.from(document.querySelectorAll<HTMLElement>('[aria-label],[placeholder],[title]'))){
+    if(el.closest('[data-no-translate],[data-localized]'))continue;
     for(const attr of ['aria-label','placeholder','title'] as const){const value=el.getAttribute(attr);if(value){const next=translateText(value,language);if(next!==value)el.setAttribute(attr,next)}}
   }
   document.documentElement.lang=language==='en'?'en':'ru';
