@@ -24,5 +24,5 @@ export function DailyQuote(){
 export function TodayView(){
   const {s}=useApp();
   const date=new Intl.DateTimeFormat('ru',{timeZone:s.settings.timezone,weekday:'long',day:'numeric',month:'long'}).format(Date.now());
-  return <><div className="today-heading-row"><div className="today-heading-copy"><p className="eyebrow">СЕГОДНЯ</p><h1>Сегодня</h1><p className="today-heading-date">{date}</p></div><DailyQuote/></div><BaseTodayView/></>;
+    return <><div className="today-heading-row"><div className="today-heading-copy"><p className="eyebrow">СЕГОДНЯ</p><h1>Сегодня</h1><p className="today-heading-date">{date}</p></div><span className="today-heading-divider" aria-hidden="true"/><DailyQuote/></div><BaseTodayView/></>;
 }
