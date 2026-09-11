@@ -4,13 +4,13 @@ import {useApp} from './ui';
 import {localDay} from '@/lib/focusbase/domain';
 
 const quotes=[
-  {jp:'千里の道も一歩から',ru:'Даже путь в тысячу ли начинается с одного шага.',roman:'Senri no michi mo ippo kara'},
-  {jp:'七転び八起き',ru:'Упал семь раз — встань восемь.',roman:'Nana korobi ya oki'},
-  {jp:'継続は力なり',ru:'Постоянство со временем становится силой.',roman:'Keizoku wa chikara nari'},
-  {jp:'雨垂れ石を穿つ',ru:'Капля точит камень — маленькие усилия складываются.',roman:'Amadare ishi o ugatsu'},
-  {jp:'急がば回れ',ru:'Если торопишься, выбери путь, который не придётся переделывать.',roman:'Isogaba maware'},
-  {jp:'一期一会',ru:'Этот момент бывает только один раз — побудь в нём внимательно.',roman:'Ichi-go ichi-e'},
-  {jp:'初心忘るべからず',ru:'Не забывай, с чего начал.',roman:'Shoshin wasuru bekarazu'},
+  {jp:'誰もあなたを救わない',ru:'Никто не придёт спасать твой план.'},
+  {jp:'時間は戻らない',ru:'Время не вернётся. Пропущенная практика сама не станет навыком.'},
+  {jp:'行動が結果を作る',ru:'Намерение ничего не меняет. Меняет только действие.'},
+  {jp:'今日を捨てるな',ru:'Каждый отданный прокрастинации день потом оплачивается усилием.'},
+  {jp:'才能より継続',ru:'Талант без повторений проигрывает тому, кто продолжает.'},
+  {jp:'現実を見る',ru:'Цель не обязана случиться. Без часов работы это только желание.'},
+  {jp:'自分に勝つ',ru:'Самая неприятная конкуренция — с версией себя, которой ты мог стать.'},
 ] as const;
 
 export function DailyQuote(){
@@ -21,4 +21,8 @@ export function DailyQuote(){
   return <section className="daily-quote" aria-label={quote.ru}><p className="daily-quote-japanese">{quote.jp}</p><p className="daily-quote-translation">{quote.ru}</p></section>;
 }
 
-export function TodayView(){return <><DailyQuote/><BaseTodayView/></>}
+export function TodayView(){
+  const {s}=useApp();
+  const date=new Intl.DateTimeFormat('ru',{timeZone:s.settings.timezone,weekday:'long',day:'numeric',month:'long'}).format(Date.now());
+  return <><div className="today-heading-row"><div className="today-heading-copy"><p className="eyebrow">СЕГОДНЯ</p><h1>Сегодня</h1><p className="today-heading-date">{date}</p></div><DailyQuote/></div><BaseTodayView/></>;
+}
