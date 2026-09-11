@@ -151,6 +151,17 @@ input::placeholder,textarea::placeholder{color:#829188;opacity:1;-webkit-text-fi
 @media(max-width:767px){.today-heading-row{display:flex;flex-direction:column;align-items:stretch;gap:19px;margin:0 0 17px}.today-heading-copy h1{font-size:38px}.today-heading-date{margin-top:11px}.today-heading-row .daily-quote{padding:0 31px;text-align:center}.today-heading-row .daily-quote:before{left:2px;top:22%}.today-heading-row .daily-quote:after{right:2px;top:23%}.today-heading-row .daily-quote-japanese{font-size:12px;letter-spacing:.16em}.today-heading-row .daily-quote-translation{margin-top:7px;font-size:18px;line-height:1.35}.today-heading-row + .day-controls{justify-content:flex-start;margin-bottom:17px}.today-heading-row + .day-controls .date-line{display:none}}
 .today-heading-row + .day-controls > .muted:first-child{display:none}
 
+/* Keep the utility bar visually connected to the photo instead of cutting across it. */
+.topbar{background:rgba(248,250,246,.93);border-bottom-color:#cbd9cf;box-shadow:0 8px 24px rgba(28,67,50,.08);backdrop-filter:blur(18px)}
+.dark .topbar{background:rgba(18,31,26,.94);border-bottom-color:#315141;box-shadow:0 8px 24px rgba(0,0,0,.22)}
+.language-toggle{display:inline-flex;align-items:center;gap:2px;padding:3px;border:1px solid #c7d8cc;border-radius:9px;background:rgba(255,253,248,.74);box-shadow:0 2px 8px rgba(28,67,50,.06)}
+.language-toggle button{min-width:31px;height:27px;padding:0 8px;border:0;border-radius:6px;background:transparent;color:#6d7f74;font-size:11px;font-weight:750;letter-spacing:.05em;transition:background .15s,color .15s,transform .15s}
+.language-toggle button:hover{color:#0f6654;background:#e7efe9}
+.language-toggle button.is-active{background:#0f6654;color:#fff;box-shadow:0 2px 5px rgba(15,102,84,.24)}
+.dark .language-toggle{border-color:#3d5d4d;background:#1c2b24}.dark .language-toggle button{color:#9bb0a2}.dark .language-toggle button:hover{background:#294239;color:#e9f0e8}.dark .language-toggle button.is-active{background:#a9bf48;color:#14251f}
+.toast button:after{content:"×"}
+@media(max-width:767px){.topbar{box-shadow:0 6px 18px rgba(28,67,50,.1)}.language-toggle button{min-width:29px;padding:0 7px}}
+
 /* Today header: a calm mountain wash, a green divider and a proper quote card. */
 .page:has(.today-heading-row){position:relative;isolation:isolate}
 .page:has(.today-heading-row)::before{content:"";position:absolute;z-index:-1;inset:0 0 auto;height:430px;border-radius:0 0 30px 30px;background-image:linear-gradient(180deg,rgba(243,245,242,.54) 0%,rgba(243,245,242,.79) 48%,rgba(243,245,242,.98) 100%),url('/focusbase-mountains.png');background-size:cover;background-position:center 44%;filter:saturate(.82) contrast(.95);opacity:.72;pointer-events:none}

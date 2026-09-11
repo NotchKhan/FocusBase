@@ -8,8 +8,9 @@ import {Input} from '@/components/ui/input';
 import {Textarea} from '@/components/ui/textarea';
 import {CheckSquare,ExternalLink,Plus} from 'lucide-react';
 import {State,Task,Resource,EntityKind,actualMs,completeTask,visible} from '@/lib/focusbase/domain';
+import {Language} from './i18n';
 export type Edit={kind:EntityKind|'quick'|'search'|'finish';id?:string;taskId?:string;projectId?:string;date?:string};
-export const AppContext=createContext<{s:State;run:(fn:(s:State)=>void,message?:string)=>Promise<boolean>;edit:(e:Edit|null)=>void;go:(view:string)=>void;start:(taskId:string)=>void}> (null!);
+export const AppContext=createContext<{s:State;run:(fn:(s:State)=>void,message?:string)=>Promise<boolean>;edit:(e:Edit|null)=>void;go:(view:string)=>void;start:(taskId:string)=>void;language:Language;setLanguage:(language:Language)=>void}> (null!);
 export const useApp=()=>useContext(AppContext);
 export function Field({label,children}:{label:string;children:React.ReactNode}){return <label className="field"><span>{label}</span>{children}</label>}
 export const TextInput=Input;export const TextArea=Textarea;
