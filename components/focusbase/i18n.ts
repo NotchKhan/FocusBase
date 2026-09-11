@@ -35,9 +35,11 @@ const reverse:Record<string,string>={};
 for(const [ru,en] of Object.entries(allCopy))if(reverse[en]===undefined)reverse[en]=ru;
 const reverseWeekdays=Object.fromEntries(Object.entries(weekdays).map(([ru,en])=>[en.toLowerCase(),ru]));
 const reverseMonths=Object.fromEntries(Object.entries(months).map(([ru,en])=>[en.toLowerCase(),ru]));
+const shortWeekdays:Record<string,string>={пн:'Mon',вт:'Tue',ср:'Wed',че:'Thu',пя:'Fri',су:'Sat',во:'Sun'};
+const reverseShortWeekdays=Object.fromEntries(Object.entries(shortWeekdays).map(([ru,en])=>[en.toLowerCase(),ru]));
 
 function preserveCase(value:string,replacement:string){return value[0]===value[0].toUpperCase()?replacement[0].toUpperCase()+replacement.slice(1):replacement}
-function tokenReplace(value:string,map:Record<string,string>){return value.replace(/\b[^\s,·]+\b/g,token=>map[token.toLowerCase()]?preserveCase(token,map[token.toLowerCase()]):token)}
+function tokenReplace(value:string,map:Record<string,string>){return value.replace(/\p{L}+/gu,token=>map[token.toLowerCase()]?preserveCase(token,map[token.toLowerCase()]):token)}
 
 export function translateText(value:string,language:Language){
   const trimmed=value.trim();
@@ -46,11 +48,11 @@ export function translateText(value:string,language:Language){
   const direct=table[trimmed];
   if(direct!==undefined)return value.replace(trimmed,direct);
   if(language==='en'){
-    const next=value.replace(/(\d+)\s+минут\b/g,'$1 minutes').replace(/(\d+)\s+мин\b/g,'$1 min').replace(/(\d+)\s+шагов\b/g,'$1 steps').replace(/(\d+)\s+задач\b/g,'$1 tasks').replace(/\bфакт\b/g,'actual').replace(/\bприоритет\b/g,'priority').replace(/\bиз\s+(\d+)\s+задач\s+выполнено\b/,'of $1 tasks completed').replace(/^Начать фокус:/,'Start focus:').replace(/^Завершить /,'Complete ').replace(/^Избранное:/,'Favorite:');
-    return tokenReplace(next,{...weekdays,...months});
+    const next=value.replace(/из\s+(\d+)\s+задач\s+выполнено/gu,'of $1 tasks completed').replace(/(\d+)\s+минут(?!\p{L})/gu,'$1 minutes').replace(/(\d+)\s+мин(?!\p{L})/gu,'$1 min').replace(/(\d+)\s+шагов(?!\p{L})/gu,'$1 steps').replace(/(\d+)\s+задач(?!\p{L})/gu,'$1 tasks').replace(/min\s+задач/gu,'min tasks').replace(/(?<!\p{L})минут(?!\p{L})/gu,'minutes').replace(/(?<!\p{L})мин(?!\p{L})/gu,'min').replace(/(?<!\p{L})задач(?!\p{L})/gu,'tasks').replace(/(?<!\p{L})факт(?!\p{L})/gu,'actual').replace(/(?<!\p{L})приоритет(?!\p{L})/gu,'priority').replace(/^Начать фокус:/,'Start focus:').replace(/^Завершить /,'Complete ').replace(/^Избранное:/,'Favorite:');
+    return tokenReplace(next,{...weekdays,...months,...shortWeekdays});
   }
-  const next=value.replace(/(\d+)\s+minutes\b/g,'$1 минут').replace(/(\d+)\s+min\b/g,'$1 мин').replace(/(\d+)\s+steps\b/g,'$1 шагов').replace(/(\d+)\s+tasks\b/g,'$1 задач').replace(/\bactual\b/g,'факт').replace(/\bpriority\b/g,'приоритет').replace(/^Start focus:/,'Начать фокус:').replace(/^Complete /,'Завершить ').replace(/^Favorite:/,'Избранное:');
-  return tokenReplace(next,{...reverseWeekdays,...reverseMonths});
+  const next=value.replace(/of\s+(\d+)\s+tasks\s+completed/gu,'из $1 задач выполнено').replace(/(\d+)\s+minutes(?!\p{L})/gu,'$1 минут').replace(/(\d+)\s+min(?!\p{L})/gu,'$1 мин').replace(/(\d+)\s+steps(?!\p{L})/gu,'$1 шагов').replace(/(\d+)\s+tasks(?!\p{L})/gu,'$1 задач').replace(/мин\s+tasks/gu,'мин задач').replace(/\bminutes\b/g,'минут').replace(/\bmin\b/g,'мин').replace(/\btasks\b/g,'задач').replace(/\bactual\b/g,'факт').replace(/\bpriority\b/g,'приоритет').replace(/^Start focus:/,'Начать фокус:').replace(/^Complete /,'Завершить ').replace(/^Favorite:/,'Избранное:');
+  return tokenReplace(next,{...reverseWeekdays,...reverseMonths,...reverseShortWeekdays});
 }
 
 export function translateDocument(language:Language){

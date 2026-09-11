@@ -160,6 +160,12 @@ input::placeholder,textarea::placeholder{color:#829188;opacity:1;-webkit-text-fi
 .language-toggle button.is-active{background:#0f6654;color:#fff;box-shadow:0 2px 5px rgba(15,102,84,.24)}
 .dark .language-toggle{border-color:#3d5d4d;background:#1c2b24}.dark .language-toggle button{color:#9bb0a2}.dark .language-toggle button:hover{background:#294239;color:#e9f0e8}.dark .language-toggle button.is-active{background:#a9bf48;color:#14251f}
 .toast button:after{content:"×"}
+.app-dialog.compact-task .form-grid,.app-dialog.compact-task .inset-section,.app-dialog.compact-task form > .field:nth-of-type(3){display:none}
+.app-dialog.compact-task form.form-stack{gap:16px}
+.app-dialog.compact-task .form-actions{margin-top:4px}
+.app-dialog.compact-resource .form-grid,.app-dialog.compact-resource form > .field:nth-of-type(n+3),.app-dialog.compact-resource form > .check-label{display:none}
+.app-dialog.compact-resource form.form-stack{gap:16px}
+.week-tools{display:none}
 @media(max-width:767px){.topbar{box-shadow:0 6px 18px rgba(28,67,50,.1)}.language-toggle button{min-width:29px;padding:0 7px}}
 
 /* Today header: a calm mountain wash, a green divider and a proper quote card. */
