@@ -127,3 +127,11 @@ input::placeholder,textarea::placeholder{color:#829188;opacity:1;-webkit-text-fi
 .daily-quote-text{font-size:17px;line-height:1.45;letter-spacing:-.02em;max-width:720px;margin:12px 0 8px;position:relative}
 .daily-quote-original{font-size:12px;color:var(--muted-foreground);letter-spacing:.02em;position:relative}.daily-quote-original span{opacity:.75}
 @media(max-width:767px){.daily-quote{margin-top:20px;padding:16px}.daily-quote-text{font-size:15px}.daily-quote-jp{font-size:12px}.daily-quote:before{right:-12px;top:-25px}}
+/* Quote as a quiet title ornament, above the day surface. */
+.daily-quote{margin:2px auto 31px;padding:4px 84px 0;text-align:center;border:0;border-radius:0;background:transparent;max-width:920px;overflow:visible}
+.daily-quote:before{content:"✦";left:16%;top:42%;right:auto;width:auto;height:auto;border:0;box-shadow:none;background:transparent;color:#b86b43;font-size:13px;position:absolute}
+.daily-quote:after{content:"·  ·  ·";right:16%;top:43%;left:auto;width:auto;height:auto;border:0;box-shadow:none;background:transparent;color:#a4b6a8;font-size:16px;letter-spacing:4px;position:absolute}
+.daily-quote-mark,.daily-quote-text,.daily-quote-original{display:none}
+.daily-quote-japanese{margin:0;color:var(--primary);font-family:Georgia,"Times New Roman",serif;font-size:clamp(22px,3vw,31px);font-weight:500;letter-spacing:.08em;line-height:1.35}
+.daily-quote-translation{margin:7px auto 0;color:var(--muted-foreground);font-size:12px;letter-spacing:.02em}
+@media(max-width:767px){.daily-quote{margin:-2px auto 23px;padding:1px 35px 0}.daily-quote:before{left:5%;top:34%;font-size:11px}.daily-quote:after{right:3%;top:35%;font-size:13px;letter-spacing:2px}.daily-quote-japanese{font-size:22px;letter-spacing:.045em}.daily-quote-translation{font-size:11px;line-height:1.45;max-width:260px}}

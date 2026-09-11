@@ -1,5 +1,4 @@
 'use client';
-import {Sparkles} from 'lucide-react';
 import {TodayView as BaseTodayView} from './views';
 import {useApp} from './ui';
 import {localDay} from '@/lib/focusbase/domain';
@@ -19,7 +18,7 @@ export function DailyQuote(){
   const day=localDay(s.settings.timezone);
   const seed=day.split('-').reduce((sum,n)=>sum+Number(n),0);
   const quote=quotes[seed%quotes.length];
-  return <section className="daily-quote" aria-label="Цитата дня"><div className="daily-quote-mark"><Sparkles size={16}/><span>ЦИТАТА ДНЯ</span><span className="daily-quote-jp">今日の一歩</span></div><p className="daily-quote-text">«{quote.ru}»</p><p className="daily-quote-original">{quote.jp} <span>· {quote.roman}</span></p></section>;
+  return <section className="daily-quote" aria-label={quote.ru}><p className="daily-quote-japanese">{quote.jp}</p><p className="daily-quote-translation">{quote.ru}</p></section>;
 }
 
-export function TodayView(){return <><BaseTodayView/><DailyQuote/></>}
+export function TodayView(){return <><DailyQuote/><BaseTodayView/></>}
