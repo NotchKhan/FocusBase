@@ -112,3 +112,18 @@ button,input,select,textarea{font-family:inherit}
 .dark .table-surface th{background:#24312b}
 @media(max-width:767px){.page{padding-top:28px}.topbar{height:64px}.breadcrumb:before{margin-right:7px}.top-actions{gap:7px}.top-actions .primary{padding:9px 11px}.page-heading{margin-bottom:23px}.page-heading h1{font-size:34px}.day-controls{gap:12px}.mode-label{display:none}.focus-card{padding:26px 22px 0;border-radius:14px}.focus-card .card-top{margin-bottom:29px}.focus-card h2{font-size:27px}.focus-card p{font-size:14px}.focus-card-foot{margin-top:27px}.right-rail{gap:14px}.panel{padding:20px}.empty-panel{min-height:154px}.section-title{margin-top:27px}}
 @media(max-width:767px){.today-grid{grid-template-columns:1fr}.right-rail{display:flex;grid-template-columns:none}}
+/* Form values stay readable on every surface, including the dark focus setup. */
+input,textarea,select{color:var(--foreground);-webkit-text-fill-color:var(--foreground);opacity:1}
+input::placeholder,textarea::placeholder{color:#829188;opacity:1;-webkit-text-fill-color:#829188}
+.focus-setup input,.focus-setup textarea,.focus-setup select{color:#17231f;-webkit-text-fill-color:#17231f;background:#fffdf8;caret-color:#17231f}
+.focus-setup input::placeholder,.focus-setup textarea::placeholder{color:#85948b;-webkit-text-fill-color:#85948b;opacity:1}
+.focus-setup input:focus,.focus-setup select:focus{border-color:#d7e35c;box-shadow:0 0 0 3px #d7e35c4a}
+.focus-setup input[type=number]{font-variant-numeric:tabular-nums}
+/* A small daily pause at the end of the Today surface. */
+.daily-quote{margin-top:26px;border:1px solid var(--border);border-radius:14px;background:color-mix(in srgb,var(--card) 82%,var(--accent));padding:18px 20px 17px;position:relative;overflow:hidden}
+.daily-quote:before{content:"";position:absolute;right:24px;top:-34px;width:110px;height:110px;border:1px solid color-mix(in srgb,var(--primary) 16%,transparent);border-radius:50%;box-shadow:0 0 0 14px color-mix(in srgb,var(--primary) 5%,transparent),0 0 0 28px color-mix(in srgb,var(--primary) 3%,transparent)}
+.daily-quote-mark{display:flex;align-items:center;gap:8px;color:var(--primary);font-size:10px;font-weight:700;letter-spacing:1.6px;position:relative}
+.daily-quote-jp{margin-left:auto;color:var(--muted-foreground);font-size:13px;letter-spacing:0;font-weight:500}
+.daily-quote-text{font-size:17px;line-height:1.45;letter-spacing:-.02em;max-width:720px;margin:12px 0 8px;position:relative}
+.daily-quote-original{font-size:12px;color:var(--muted-foreground);letter-spacing:.02em;position:relative}.daily-quote-original span{opacity:.75}
+@media(max-width:767px){.daily-quote{margin-top:20px;padding:16px}.daily-quote-text{font-size:15px}.daily-quote-jp{font-size:12px}.daily-quote:before{right:-12px;top:-25px}}
