@@ -1,0 +1,26 @@
+'use client';
+import React,{createContext,useContext,useState} from 'react';
+import {Dialog,DialogContent,DialogTitle,DialogDescription} from '@/components/ui/dialog';
+import {NativeSelect} from '@/components/ui/native-select';
+import {Checkbox} from '@/components/ui/checkbox';
+import {Tabs,TabsList,TabsTrigger} from '@/components/ui/tabs';
+import {Input} from '@/components/ui/input';
+import {Textarea} from '@/components/ui/textarea';
+import {CheckSquare,ExternalLink,Plus} from 'lucide-react';
+import {State,Task,Resource,EntityKind,actualMs,completeTask,visible} from '@/lib/focusbase/domain';
+export type Edit={kind:EntityKind|'quick'|'search'|'finish';id?:string;taskId?:string;projectId?:string;date?:string};
+export const AppContext=createContext<{s:State;run:(fn:(s:State)=>void,message?:string)=>Promise<boolean>;edit:(e:Edit|null)=>void;go:(view:string)=>void;start:(taskId:string)=>void}> (null!);
+export const useApp=()=>useContext(AppContext);
+export function Field({label,children}:{label:string;children:React.ReactNode}){return <label className="field"><span>{label}</span>{children}</label>}
+export const TextInput=Input;export const TextArea=Textarea;
+export function Select({value,onChange,options,label,...props}:{value:string;onChange:(v:string)=>void;options:(string|readonly [string,string])[];label?:string;name?:string;required?:boolean}){return <NativeSelect aria-label={label} value={value} onChange={e=>onChange(e.target.value)} {...props}>{options.map(o=>{const [v,t]=typeof o==='string'?[o,o]:o;return <option key={v} value={v}>{t}</option>})}</NativeSelect>}
+export function Check({checked,onChange,children}:{checked:boolean;onChange:(v:boolean)=>void;children:React.ReactNode}){return <label className="check-label"><Checkbox checked={checked} onCheckedChange={v=>onChange(v===true)}/><span>{children}</span></label>}
+export function Segments({value,onChange,options}:{value:string;onChange:(v:string)=>void;options:(string|[string,string])[]}){return <Tabs value={value} onValueChange={onChange}><TabsList>{options.map(o=>{const [v,t]=typeof o==='string'?[o,o]:o;return <TabsTrigger key={v} value={v}>{t}</TabsTrigger>})}</TabsList></Tabs>}
+export function Modal({title,description,close,children,wide=false}:{title:string;description?:string;close:()=>void;children:React.ReactNode;wide?:boolean}){return <Dialog open onOpenChange={v=>{if(!v)close()}}><DialogContent className={'app-dialog '+(wide?'wide':'')}><DialogTitle>{title}</DialogTitle><DialogDescription>{description||'Изменения сохраняются в вашем личном пространстве.'}</DialogDescription>{children}</DialogContent></Dialog>}
+export function Empty({title,detail,action,onClick}:{title:string;detail?:string;action?:string;onClick?:()=>void}){return <div className="empty-panel"><CheckSquare size={25}/><h3>{title}</h3>{detail&&<p>{detail}</p>}{action&&<button className="secondary" onClick={onClick}><Plus size={16}/>{action}</button>}</div>}
+export function SafeLink({url,children}:{url:string;children:React.ReactNode}){let valid=false;try{valid=['http:','https:'].includes(new URL(url).protocol)}catch{}return valid?<a className="resource-link" href={url} target="_blank" rel="noopener noreferrer">{children}<ExternalLink size={14}/></a>:<span>{children}</span>}
+export function ResourceLink({r}:{r:Resource}){return <div className="resource-line"><span className="resource-type">{r.type.slice(0,1)}</span><div><SafeLink url={r.url}>{r.title}</SafeLink><small>{r.type}{r.why?' · '+r.why:''}</small></div></div>}
+export function TaskRow({t,compact=false}:{t:Task;compact?:boolean}){const {s,run,edit,start}=useApp();return <div className={'task-row '+(t.status==='done'?'completed':'')}><Check checked={t.status==='done'} onChange={done=>void run(d=>{if(done)completeTask(d,t.id);else d.tasks.find(x=>x.id===t.id)!.status='todo'})}><span className="sr-only">Завершить {t.title}</span></Check><button className="task-open" onClick={()=>edit({kind:'tasks',id:t.id})}><strong>{t.title}</strong><span>{t.direction}{t.date?' · '+t.date:''}{t.time?' · '+t.time:''}{t.anchor?' · '+t.anchor:''}</span></button><span className={'priority priority-'+t.priority}>{t.priority}</span><span className="task-duration">{t.minutes} мин{actualMs(s,t.id)>0&&<small>факт {Math.floor(actualMs(s,t.id)/60000)} мин</small>}</span>{!compact&&t.status!=='done'&&<button className="icon-button" aria-label={'Начать фокус: '+t.title} onClick={()=>start(t.id)}>▷</button>}</div>}
+export function FooterActions({onDelete,onArchive,saving=false}:{onDelete?:()=>void;onArchive?:()=>void;saving?:boolean}){return <div className="form-actions">{onDelete&&<button type="button" className="danger" onClick={onDelete}>В корзину</button>}{onArchive&&<button type="button" className="secondary" onClick={onArchive}>В архив</button>}<button disabled={saving} type="submit" className="primary push-right">{saving?'Сохраняю…':'Сохранить'}</button></div>}
+export function useSave(){const [saving,set]=useState(false);const {run,edit}=useApp();return {saving,save:async(fn:(d:State)=>void)=>{set(true);const ok=await run(fn,'Сохранено');set(false);if(ok)edit(null)}}}
+export function linkedOptions(s:State,kind:'projects'|'tasks'|'resources'):([string,string])[]{return [['','Без связи'],...s[kind].filter(visible).map(x=>[x.id,x.title] as [string,string])]}

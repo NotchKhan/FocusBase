@@ -1,0 +1,16 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {indexedDB} from 'fake-indexeddb';
+import ts from 'typescript';
+import {readFile,mkdir,writeFile} from 'node:fs/promises';
+import {emptyState,taskSchema,baseRecord,startFocus,finishFocus,backup,parseBackup,tableTemplate} from '../lib/focusbase/domain.ts';
+await mkdir(new URL('../outputs/',import.meta.url),{recursive:true});
+const source=await readFile(new URL('../lib/focusbase/store.ts',import.meta.url),'utf8');
+const js=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace("from './domain'","from '../lib/focusbase/domain.ts'");
+await writeFile(new URL('../outputs/store-test-runtime.mjs',import.meta.url),js);
+Object.assign(globalThis,{indexedDB});
+const {mutate}=await import('../outputs/store-test-runtime.mjs');
+test('IndexedDB transaction persistence and concurrent updates',async()=>{const names=Array.from({length:20},(_,i)=>'Task '+i);await Promise.all(names.map(title=>mutate(s=>s.tasks.push(taskSchema.parse(baseRecord(title))))));const result=await mutate(()=>{});assert.equal(result.tasks.length,20);assert.equal(new Set(result.tasks.map(t=>t.id)).size,20);assert.equal(result.revision,21);});
+test('invalid transaction aborts without modifying stored data',async()=>{const before=await mutate(()=>{});await assert.rejects(mutate(s=>{s.tasks[0].minutes=-20}));const after=await mutate(()=>{});assert.deepEqual(after.tasks,before.tasks)});
+test('two tabs cannot acquire active session concurrently',async()=>{const results=await Promise.allSettled([mutate(s=>startFocus(s,'','free',25,5,0)),mutate(s=>startFocus(s,'','free',25,5,0))]);assert.equal(results.filter(r=>r.status==='fulfilled').length,1);assert.equal(results.filter(r=>r.status==='rejected').length,1);await mutate(s=>finishFocus(s,{summary:'Test',result:'OK',nextStep:'',done:false},60000));const saved=await mutate(()=>{});assert.equal(saved.sessions.length,1);assert.equal(saved.sessions[0].workMs,60000)});
+test('trash restore and backup restore into empty IndexedDB workspace',async()=>{let current=await mutate(s=>{s.tasks[0].deletedAt=123;s.tables.push(tableTemplate('Результаты пробников'))});const originalId=current.tasks[0].id;assert.equal(current.tasks[0].deletedAt,123);current=await mutate(s=>{s.tasks[0].deletedAt=null});const serialized=backup(current);await mutate(s=>{const rev=s.revision;Object.assign(s,emptyState());s.revision=rev});const restored=await mutate(s=>{const rev=s.revision;Object.assign(s,parseBackup(serialized));s.revision=rev});assert.deepEqual({...restored,revision:0},{...current,revision:0});assert.equal(restored.tasks[0].id,originalId)});
