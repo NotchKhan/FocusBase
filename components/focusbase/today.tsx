@@ -1,4 +1,5 @@
 'use client';
+import {QuickCapture,ReviewQueue,ReviewShortcut} from './learning';
 import {TodayView as BaseTodayView} from './views';
 import {useApp,Field,TextArea,TextInput} from './ui';
 import {localDay} from '@/lib/focusbase/domain';
@@ -42,5 +43,5 @@ export function QuoteForm(){
 export function TodayView(){
   const {s,language}=useApp();
   const date=new Intl.DateTimeFormat(language==='en'?'en-US':'ru-RU',{timeZone:s.settings.timezone,weekday:'long',day:'numeric',month:'long'}).format(Date.now());
-    return <><div className="today-heading-row"><div className="today-heading-copy"><p className="eyebrow">СЕГОДНЯ</p><h1>Сегодня</h1><p className="today-heading-date">{date}</p></div><span className="today-heading-divider" aria-hidden="true"/><DailyQuote/></div><BaseTodayView/></>;
+    return <><div className="today-heading-row"><div className="today-heading-copy"><p className="eyebrow">СЕГОДНЯ</p><h1>Сегодня</h1><p className="today-heading-date">{date}</p></div><span className="today-heading-divider" aria-hidden="true"/><DailyQuote/></div><QuickCapture/><BaseTodayView/><ReviewQueue compact/><ReviewShortcut/></>;
 }

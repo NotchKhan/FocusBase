@@ -6,14 +6,15 @@ import {Checkbox} from '@/components/ui/checkbox';
 import {Tabs,TabsList,TabsTrigger} from '@/components/ui/tabs';
 import {Input} from '@/components/ui/input';
 import {Textarea} from '@/components/ui/textarea';
-import {CheckSquare,ExternalLink,Plus,Play} from 'lucide-react';
-import {State,Task,Resource,EntityKind,actualMs,completeTask,visible} from '@/lib/focusbase/domain';
+import {DropdownMenu,DropdownMenuTrigger,DropdownMenuContent,DropdownMenuItem} from '@/components/ui/dropdown-menu';
+import {CheckSquare,ExternalLink,Plus,Play,CalendarDays,Trash2} from 'lucide-react';
+import {State,Task,Resource,EntityKind,actualMs,completeTask,visible,localDay,addDays} from '@/lib/focusbase/domain';
 import {Language,translateText} from './i18n';
 import {ResourceIcon} from './icons';
 import type {ExamId} from '@/lib/focusbase/domain';
 import {exams} from '@/lib/focusbase/exams';
 export type Edit={kind:EntityKind|'quick'|'search'|'finish'|'quote';examId?:ExamId;examSection?:string;id?:string;taskId?:string;projectId?:string;date?:string};
-export const AppContext=createContext<{s:State;run:(fn:(s:State)=>void,message?:string)=>Promise<boolean>;edit:(e:Edit|null)=>void;go:(view:string)=>void;start:(taskId:string)=>void;language:Language;setLanguage:(language:Language)=>void}> (null!);
+export const AppContext=createContext<{s:State;run:(fn:(s:State)=>void,message?:string)=>Promise<boolean>;edit:(e:Edit|null)=>void;go:(view:string)=>void;start:(taskId:string)=>void;removeTask:(id:string)=>Promise<boolean>;language:Language;setLanguage:(language:Language)=>void}> (null!);
 export const useApp=()=>useContext(AppContext);
 export function Field({label,children}:{label:string;children:React.ReactNode}){return <label className="field"><span>{label}</span>{children}</label>}
 export function ExamFields({examId,section,onChange}:{examId:ExamId|'';section:string;onChange:(patch:{examId:ExamId|'';examSection:string;direction:string})=>void}){const {language}=useApp();const en=language==='en';return <div className="form-grid" data-localized><Field label={en?'Exam':'Экзамен'}><Select value={examId} options={ [['',en?'No exam':'Без экзамена'],...Object.entries(exams).map(([id,e])=>[id,e.name] as [string,string])]} onChange={value=>{const id=value as ExamId|'';onChange({examId:id,examSection:'',direction:id?exams[id].direction:'Личное'})}}/></Field>{examId&&<Field label={en?'Section':'Раздел'}><Select value={section} options={ [['',en?'General':'Общее'],...exams[examId].sections.map(x=>[x.id,x.label[en?1:0]] as [string,string])]} onChange={value=>onChange({examId,examSection:value,direction:exams[examId].direction})}/></Field>}</div>}
@@ -31,9 +32,11 @@ export function TaskRow({t,compact=false}:{t:Task;compact?:boolean}){
   <Check checked={t.status==='done'} onChange={done=>void run(d=>{if(done)completeTask(d,t.id);else d.tasks.find(x=>x.id===t.id)!.status='todo'})}><span className="sr-only">{en?'Complete':'Завершить'} {t.title}</span></Check>
   <button className="task-open" onClick={()=>edit({kind:'tasks',id:t.id})}><strong data-no-translate>{t.title}</strong><span>{translateText(t.direction,language)}{t.date?' · '+date(t.date):''}{t.time?' · '+t.time:''}{t.anchor?' · '+t.anchor:''}</span>{t.deadline&&<span className="task-deadline">{en?'Deadline':'Дедлайн'} · {date(t.deadline)}</span>}</button>
   <span className={'priority priority-'+t.priority} title={(en?'Priority ':'Приоритет ')+t.priority}>{t.priority}</span><span className="task-duration">{t.minutes} {en?'min':'мин'}{actualMs(s,t.id)>0&&<small>{en?'actual':'факт'} {Math.floor(actualMs(s,t.id)/60000)} {en?'min':'мин'}</small>}</span>
+  {!compact&&<TaskSchedule t={t}/>}
   {!compact&&t.status!=='done'&&<button className="icon-button" aria-label={(en?'Start focus: ':'Начать фокус: ')+t.title} onClick={()=>start(t.id)}><Play size={17} strokeWidth={1.8}/></button>}
  </div>
 }
 export function FooterActions({onDelete,onArchive,saving=false}:{onDelete?:()=>void;onArchive?:()=>void;saving?:boolean}){return <div className="form-actions">{onDelete&&<button type="button" className="danger" onClick={onDelete}>В корзину</button>}{onArchive&&<button type="button" className="secondary" onClick={onArchive}>В архив</button>}<button disabled={saving} type="submit" className="primary push-right">{saving?'Сохраняю…':'Сохранить'}</button></div>}
 export function useSave(){const [saving,set]=useState(false);const {run,edit}=useApp();return {saving,save:async(fn:(d:State)=>void)=>{set(true);const ok=await run(fn,'Сохранено');set(false);if(ok)edit(null)}}}
 export function linkedOptions(s:State,kind:'projects'|'tasks'|'resources'):([string,string])[]{return [['','Без связи'],...s[kind].filter(visible).map(x=>[x.id,x.title] as [string,string])]}
+export function TaskSchedule({t}:{t:Task}){const {s,run,edit,removeTask,language}=useApp();const en=language==='en';const today=localDay(s.settings.timezone);const schedule=(date:string)=>void run(d=>{const task=d.tasks.find(x=>x.id===t.id);if(task){task.date=date;task.updatedAt=Date.now();if(task.status==='inbox'&&date)task.status='todo'}},en?'Task rescheduled':'Дата задачи изменена');return <DropdownMenu><DropdownMenuTrigger asChild><button className="icon-button task-schedule-button" aria-label={(en?'Reschedule: ':'Перенести: ')+t.title} title={en?'Reschedule task':'Перенести задачу'}><CalendarDays size={17}/></button></DropdownMenuTrigger><DropdownMenuContent data-localized className="task-schedule-menu" align="end"><DropdownMenuItem onSelect={()=>schedule(today)}>{en?'Today':'Сегодня'}</DropdownMenuItem><DropdownMenuItem onSelect={()=>schedule(addDays(today,1))}>{en?'Tomorrow':'Завтра'}</DropdownMenuItem><DropdownMenuItem onSelect={()=>schedule('')}>{en?'Remove scheduled date':'Убрать день выполнения'}</DropdownMenuItem><DropdownMenuItem onSelect={()=>edit({kind:'tasks',id:t.id})}>{en?'Choose date…':'Выбрать дату…'}</DropdownMenuItem><DropdownMenuItem variant="destructive" onSelect={()=>void removeTask(t.id)}><Trash2 size={16}/>{en?'Delete task':'Удалить задачу'}</DropdownMenuItem></DropdownMenuContent></DropdownMenu>}

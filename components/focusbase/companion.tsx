@@ -7,23 +7,24 @@ import {nextPlan} from '@/lib/focusbase/next-plan';
 import {useApp,type Edit} from './ui';
 
 const timeText=(ms:number)=>{const seconds=Math.floor(Math.max(0,ms)/1000);return `${Math.floor(seconds/60).toString().padStart(2,'0')}:${(seconds%60).toString().padStart(2,'0')}`};
-export function Companion({hidden=false}:{hidden?:boolean}){
+export function Companion({hidden=false,desktop=false}:{hidden?:boolean;desktop?:boolean}){
   const {s,run,go,edit,language}=useApp();const en=language==='en';const l=(ru:string,eng:string)=>en?eng:ru;
   const [open,setOpen]=useState(false),[now,setNow]=useState(()=>Date.now()),[busy,setBusy]=useState(false);
   useEffect(()=>{const timer=setInterval(()=>setNow(Date.now()),1000);return()=>clearInterval(timer)},[]);
   const a=s.active;const today=localDay(s.settings.timezone,now);const next=nextPlan(s,today)[0];
   const activeTask=s.tasks.find(t=>t.id===a?.taskId);const limit=a?phaseLimit(a):0;const passed=a?elapsed(a,now):0;const ended=!!a&&passed>=limit;
   const clock=a?timeText(a.mode==='free'?passed:limit-passed):'';
-  const navigate=(view:string)=>{setOpen(false);go(view)};
-  const form=(value:Edit)=>{setOpen(false);edit(value)};
+  const changeOpen=(value:boolean)=>{setOpen(value);if(desktop)void window.focusbaseDesktop?.setExpanded(value)};
+  const navigate=(view:string)=>{changeOpen(false);go(view)};
+  const form=(value:Edit)=>{changeOpen(false);edit(value)};
   async function change(fn:Parameters<typeof run>[0]){setBusy(true);try{return await run(fn)}finally{setBusy(false)}}
   const nextDate=next&&[next.date,next.deadline].filter(Boolean).sort()[0];
   const dateLabel=nextDate?new Intl.DateTimeFormat(en?'en-GB':'ru-RU',{day:'numeric',month:'short'}).format(new Date(nextDate+'T12:00:00')):l('Без даты','Unscheduled');
   if(hidden)return null;
-  return <Popover open={open} onOpenChange={setOpen}>
+  return <Popover open={open} onOpenChange={changeOpen}>{desktop&&<div className="desktop-drag-handle" title={l('Перетащить иконку','Drag companion')}>•••</div>}
     <PopoverTrigger asChild><button data-localized className={'companion-launcher '+(a?'has-timer':'')} aria-label={l('Открыть быстрый доступ FocusBase','Open FocusBase quick access')} title="FocusBase"><Focus size={25} strokeWidth={1.8}/>{a&&<span aria-hidden="true">{ended?<Check size={15}/>:a.runSince===null?<Pause size={14}/>:clock}</span>}</button></PopoverTrigger>
     <PopoverContent data-localized side="top" align="end" sideOffset={12} collisionPadding={12} className="companion-panel" aria-label={l('Быстрый доступ FocusBase','FocusBase quick access')}>
-      <div className="companion-heading"><span><Focus size={18}/>FocusBase</span><button className="icon-button" onClick={()=>setOpen(false)} aria-label={l('Закрыть панель','Close panel')}><X size={18}/></button></div>
+      <div className="companion-heading"><span><Focus size={18}/>FocusBase</span><button className="icon-button" onClick={()=>changeOpen(false)} aria-label={l('Закрыть панель','Close panel')}><X size={18}/></button></div>
       {a?<section className="companion-timer"><p>{ended?l('Интервал завершён','Interval complete'):a.runSince===null?l('На паузе','Paused'):a.phase==='break'?l('Перерыв','Break'):l('В фокусе','Focusing')}</p><strong className="companion-clock" role="timer" aria-label={l('Время таймера','Timer time')}>{clock}</strong><button className="companion-task-title" onClick={()=>activeTask?form({kind:'tasks',id:activeTask.id}):navigate('Фокус')}>{activeTask?.title||l('Свободный фокус','Free focus')}</button><div className="companion-timer-actions">
         {!ended&&<button className="secondary" disabled={busy} onClick={()=>void change(d=>{if(d.active?.id!==a.id)return;if(d.active.runSince===null)d.active.runSince=Date.now();else pause(d.active)})}>{a.runSince===null?<Play size={16}/>:<Pause size={16}/>} {a.runSince===null?l('Продолжить','Resume'):l('Пауза','Pause')}</button>}
         {ended&&a.mode==='pomodoro'&&<button className="secondary" disabled={busy} onClick={()=>void change(d=>{if(d.active?.id===a.id)nextPhase(d)})}>{a.phase==='work'?l('Начать перерыв','Start break'):l('Следующий фокус','Next focus')}</button>}

@@ -1,0 +1,39 @@
+{
+  "name": "focusbase-desktop",
+  "productName": "FocusBase",
+  "version": "1.0.0",
+  "description": "FocusBase desktop study companion",
+  "author": "FocusBase",
+  "private": true,
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "package": "electron-builder --win portable --x64"
+  },
+  "build": {
+    "appId": "app.focusbase.desktop",
+    "directories": {
+      "output": "../outputs/desktop"
+    },
+    "files": [
+      "main.cjs",
+      "preload.cjs",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../out",
+        "to": "site"
+      }
+    ],
+    "win": {
+      "target": "portable",
+      "signAndEditExecutable": false
+    },
+    "artifactName": "FocusBase-Desktop-${version}.exe"
+  },
+  "devDependencies": {
+    "electron": "^44.3.0",
+    "electron-builder": "^26.15.3"
+  }
+}
