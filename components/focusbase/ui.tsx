@@ -8,7 +8,7 @@ import {Input} from '@/components/ui/input';
 import {Textarea} from '@/components/ui/textarea';
 import {DropdownMenu,DropdownMenuTrigger,DropdownMenuContent,DropdownMenuItem} from '@/components/ui/dropdown-menu';
 import {CheckSquare,ExternalLink,Plus,Play,CalendarDays,Trash2} from 'lucide-react';
-import {State,Task,Resource,EntityKind,actualMs,completeTask,visible,localDay,addDays} from '@/lib/focusbase/domain';
+import {State,Task,Resource,EntityKind,actualMs,completeTask,setTaskStatus,visible,localDay,addDays} from '@/lib/focusbase/domain';
 import {Language,translateText} from './i18n';
 import {ResourceIcon} from './icons';
 import type {ExamId} from '@/lib/focusbase/domain';
@@ -29,7 +29,7 @@ export function ResourceLink({r}:{r:Resource}){const {language}=useApp();return 
 export function TaskRow({t,compact=false}:{t:Task;compact?:boolean}){
  const {s,run,edit,start,language}=useApp();const en=language==='en';const date=(value:string)=>new Intl.DateTimeFormat(en?'en-GB':'ru-RU',{day:'numeric',month:'short'}).format(new Date(value+'T12:00:00'));
  return <div data-localized className={'task-row '+(t.status==='done'?'completed':'')}>
-  <Check checked={t.status==='done'} onChange={done=>void run(d=>{if(done)completeTask(d,t.id);else d.tasks.find(x=>x.id===t.id)!.status='todo'})}><span className="sr-only">{en?'Complete':'Завершить'} {t.title}</span></Check>
+  <Check checked={t.status==='done'} onChange={done=>void run(d=>{if(done)completeTask(d,t.id);else setTaskStatus(d,t.id,'todo')})}><span className="sr-only">{en?'Complete':'Завершить'} {t.title}</span></Check>
   <button className="task-open" onClick={()=>edit({kind:'tasks',id:t.id})}><strong data-no-translate>{t.title}</strong><span>{translateText(t.direction,language)}{t.date?' · '+date(t.date):''}{t.time?' · '+t.time:''}{t.anchor?' · '+t.anchor:''}</span>{t.deadline&&<span className="task-deadline">{en?'Deadline':'Дедлайн'} · {date(t.deadline)}</span>}</button>
   <span className={'priority priority-'+t.priority} title={(en?'Priority ':'Приоритет ')+t.priority}>{t.priority}</span><span className="task-duration">{t.minutes} {en?'min':'мин'}{actualMs(s,t.id)>0&&<small>{en?'actual':'факт'} {Math.floor(actualMs(s,t.id)/60000)} {en?'min':'мин'}</small>}</span>
   {!compact&&<TaskSchedule t={t}/>}
