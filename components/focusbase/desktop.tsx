@@ -2,7 +2,7 @@
 import {useEffect,useState} from 'react';
 import {Monitor} from 'lucide-react';
 import {useApp,Check,type Edit} from './ui';
-declare global{interface Window{focusbaseDesktop?:{mini:boolean;getEnabled:()=>Promise<boolean>;setEnabled:(value:boolean)=>Promise<boolean>;setExpanded:(value:boolean)=>Promise<void>;open:(payload:{view?:string;edit?:Edit})=>Promise<void>;onOpen:(callback:(payload:{view?:string;edit?:Edit})=>void)=>()=>void}}}
+declare global{interface Window{focusbaseDesktop?:{mini:boolean;getEnabled:()=>Promise<boolean>;setEnabled:(value:boolean)=>Promise<boolean>;setExpanded:(value:boolean)=>Promise<void>;drag:(phase:'start'|'move'|'end')=>void;open:(payload:{view?:string;edit?:Edit})=>Promise<void>;onOpen:(callback:(payload:{view?:string;edit?:Edit})=>void)=>()=>void}}}
 export function DesktopSettings(){
   const {language}=useApp();const en=language==='en';const [available,setAvailable]=useState(false),[enabled,setEnabled]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState('');
   useEffect(()=>{const bridge=window.focusbaseDesktop;if(bridge){setAvailable(true);void bridge.getEnabled().then(setEnabled).catch(()=>setError(en?'Unable to read desktop settings':'Не удалось прочитать настройки'))}},[en]);

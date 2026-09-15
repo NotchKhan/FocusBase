@@ -12,12 +12,14 @@
   },
   "build": {
     "appId": "app.focusbase.desktop",
+    "electronDist": "node_modules/electron/dist",
     "directories": {
       "output": "../outputs/desktop"
     },
     "files": [
       "main.cjs",
       "preload.cjs",
+      "icon.png",
       "package.json"
     ],
     "extraResources": [
@@ -33,7 +35,7 @@
     "artifactName": "FocusBase-Desktop-${version}.exe"
   },
   "devDependencies": {
-    "electron": "^44.3.0",
+    "electron": "^43.7.0",
     "electron-builder": "^26.15.3"
   }
 }

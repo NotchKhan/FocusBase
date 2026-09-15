@@ -9,6 +9,8 @@
     "install:ci": "node scripts/install-ci.mjs",
     "dev": "next dev --webpack --hostname 127.0.0.1 --port 5173",
     "build": "next build",
+    "desktop:build": "node scripts/build-desktop.mjs",
+    "desktop:package": "npm run desktop:build && npm run package --prefix desktop",
     "start": "next start --hostname 127.0.0.1 --port 5173",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate",

@@ -4,6 +4,7 @@ contextBridge.exposeInMainWorld('focusbaseDesktop',{
   getEnabled:()=>ipcRenderer.invoke('companion:get-enabled'),
   setEnabled:value=>ipcRenderer.invoke('companion:set-enabled',value===true),
   setExpanded:value=>ipcRenderer.invoke('companion:expanded',value===true),
+  drag:phase=>ipcRenderer.send('companion:drag',phase),
   open:payload=>ipcRenderer.invoke('companion:open',payload),
   onOpen:callback=>{const listener=(_event,value)=>callback(value);ipcRenderer.on('workspace:open',listener);return()=>ipcRenderer.removeListener('workspace:open',listener)},
 });
