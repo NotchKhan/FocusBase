@@ -5,12 +5,15 @@ import {Popover,PopoverTrigger,PopoverContent} from '@/components/ui/popover';
 import {elapsed,phaseLimit,pause,nextPhase,startFocus,localDay} from '@/lib/focusbase/domain';
 import {nextPlan} from '@/lib/focusbase/next-plan';
 import {useApp,type Edit} from './ui';
+import {ContextMenu,ContextMenuTrigger,ContextMenuContent,ContextMenuItem} from '@/components/ui/context-menu';
 import {useCompanionPosition} from './use-companion-position';
 
 const timeText=(ms:number)=>{const seconds=Math.floor(Math.max(0,ms)/1000);return `${Math.floor(seconds/60).toString().padStart(2,'0')}:${(seconds%60).toString().padStart(2,'0')}`};
 export function Companion({hidden=false,desktop=false}:{hidden?:boolean;desktop?:boolean}){
   const {s,run,go,edit,language}=useApp();const en=language==='en';const l=(ru:string,eng:string)=>en?eng:ru;
   const [open,setOpen]=useState(false),[now,setNow]=useState(()=>Date.now()),[busy,setBusy]=useState(false);
+  const [nativeApp,setNativeApp]=useState(false);
+  useEffect(()=>setNativeApp(!!window.focusbaseDesktop),[]);
   const positionProps=useCompanionPosition(desktop);
   useEffect(()=>{const timer=setInterval(()=>setNow(Date.now()),1000);return()=>clearInterval(timer)},[]);
   const a=s.active;const today=localDay(s.settings.timezone,now);const next=nextPlan(s,today)[0];
@@ -22,9 +25,9 @@ export function Companion({hidden=false,desktop=false}:{hidden?:boolean;desktop?
   async function change(fn:Parameters<typeof run>[0]){setBusy(true);try{return await run(fn)}finally{setBusy(false)}}
   const nextDate=next&&[next.date,next.deadline].filter(Boolean).sort()[0];
   const dateLabel=nextDate?new Intl.DateTimeFormat(en?'en-GB':'ru-RU',{day:'numeric',month:'short'}).format(new Date(nextDate+'T12:00:00')):l('Без даты','Unscheduled');
-  if(hidden)return null;
+  if(hidden||(!desktop&&(!s.settings.companionVisible||nativeApp)))return null;
   return <Popover open={open} onOpenChange={changeOpen}>{desktop&&<div className="desktop-drag-handle" title={l('Перетащить иконку','Drag companion')}>•••</div>}
-    <PopoverTrigger asChild><button {...positionProps} data-localized className={'companion-launcher '+(a?'has-timer':'')} aria-label={l('Открыть быстрый доступ FocusBase','Open FocusBase quick access')} title={l('Нажми, чтобы открыть. Потяни, чтобы переместить.','Click to open. Drag to move.')}><Focus size={25} strokeWidth={1.8}/>{a&&<span aria-hidden="true">{ended?<Check size={15}/>:a.runSince===null?<Pause size={14}/>:clock}</span>}</button></PopoverTrigger>
+    <ContextMenu><ContextMenuTrigger asChild disabled={desktop}><PopoverTrigger asChild><button {...positionProps} onContextMenu={e=>{if(desktop){e.preventDefault();window.focusbaseDesktop?.showMenu(en)}}} onKeyDown={e=>{if(desktop&&(e.key==='ContextMenu'||(e.shiftKey&&e.key==='F10'))){e.preventDefault();window.focusbaseDesktop?.showMenu(en)}}} data-localized className={'companion-launcher '+(a?'has-timer':'')} aria-label={l('Открыть быстрый доступ FocusBase','Open FocusBase quick access')} title={l('Нажми, чтобы открыть. Потяни, чтобы переместить.','Click to open. Drag to move.')}><Focus size={25} strokeWidth={1.8}/>{a&&<span aria-hidden="true">{ended?<Check size={15}/>:a.runSince===null?<Pause size={14}/>:clock}</span>}</button></PopoverTrigger></ContextMenuTrigger>{!desktop&&<ContextMenuContent data-localized><ContextMenuItem onSelect={()=>{changeOpen(false);void run(d=>{d.settings.companionVisible=false})}}><X size={16}/>{l('Убрать иконку','Hide icon')}</ContextMenuItem></ContextMenuContent>}</ContextMenu>
     <PopoverContent data-localized side="top" align="end" sideOffset={12} collisionPadding={12} className="companion-panel" aria-label={l('Быстрый доступ FocusBase','FocusBase quick access')}>
       <div className="companion-heading"><span><Focus size={18}/>FocusBase</span><button className="icon-button" onClick={()=>changeOpen(false)} aria-label={l('Закрыть панель','Close panel')}><X size={18}/></button></div>
       {a?<section className="companion-timer"><p>{ended?l('Интервал завершён','Interval complete'):a.runSince===null?l('На паузе','Paused'):a.phase==='break'?l('Перерыв','Break'):l('В фокусе','Focusing')}</p><strong className="companion-clock" role="timer" aria-label={l('Время таймера','Timer time')}>{clock}</strong><button className="companion-task-title" onClick={()=>activeTask?form({kind:'tasks',id:activeTask.id}):navigate('Фокус')}>{activeTask?.title||l('Свободный фокус','Free focus')}</button><div className="companion-timer-actions">

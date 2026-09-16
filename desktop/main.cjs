@@ -42,7 +42,8 @@ function createCompanion(){
   companion.on('closed',()=>{clearTimeout(moveTimer);drag=null;companion=null});void companion.loadURL(origin+'/#today');
 }
 function updateMenu(){tray?.setContextMenu(Menu.buildFromTemplate([{label:'Открыть FocusBase',click:()=>showMain()},{label:'Иконка поверх окон',type:'checkbox',checked:enabled,click:item=>setEnabled(item.checked)},{type:'separator'},{label:'Выйти из FocusBase',click:()=>{quitting=true;app.quit()}}]))}
-function setEnabled(value){enabled=value;savePrefs();if(value)createCompanion();else{companion?.destroy();if(main&&!main.isVisible()&&!smoke)showMain()}updateMenu();return enabled}
+function setEnabled(value,showWindow=true){if(!value)rememberPosition();enabled=value;savePrefs();if(value)createCompanion();else{companion?.destroy();if(showWindow&&main&&!main.isVisible()&&!smoke)showMain()}updateMenu();main?.webContents.send('companion:enabled',enabled);return enabled}
+function companionMenu(english){return Menu.buildFromTemplate([{id:'hide-companion',label:english?'Hide icon':'Убрать иконку',click:()=>setEnabled(false,false)}])}
 app.on('second-instance',()=>showMain());app.on('before-quit',()=>{rememberPosition();quitting=true});app.on('window-all-closed',()=>{if(!enabled)app.quit()});
 app.whenReady().then(async()=>{
   const siteRoot=app.isPackaged?path.join(process.resourcesPath,'site'):path.resolve(__dirname,'../out');
@@ -64,6 +65,7 @@ app.whenReady().then(async()=>{
   ipcMain.handle('companion:set-enabled',(event,value)=>{trust(event);return setEnabled(value===true)});
   ipcMain.handle('companion:expanded',(event,value)=>{trust(event);if(event.sender!==companion?.webContents)return;resizeCompanion(value===true)});
   ipcMain.on('companion:drag',(event,phase)=>{if(event.sender===companion?.webContents)dragCompanion(phase)});
+  ipcMain.on('companion:menu',(event,english)=>{if(event.sender===companion?.webContents&&enabled)companionMenu(english===true).popup({window:companion})});
   ipcMain.handle('companion:open',(event,value)=>{trust(event);if(!value||typeof value!=='object')return;
     const views=['Сегодня','Задачи','Фокус','Календарь','Библиотека','Заметки','Обзор недели','Настройки'];const kinds=['tasks','notes','resources','finish'];
     if(typeof value.view==='string'&&views.includes(value.view))showMain({view:value.view});
@@ -81,7 +83,8 @@ app.whenReady().then(async()=>{
     const area=screen.getPrimaryDisplay().workArea;companion.setPosition(area.x+70,area.y+80);const moved=companion.getBounds();rememberPosition();assert.deepEqual(prefs().position,{x:moved.x,y:moved.y});
     companion.destroy();createCompanion();assert.ok(Math.abs(companion.getBounds().x-moved.x)<=1);assert.ok(Math.abs(companion.getBounds().y-moved.y)<=1);
     const recovered=visibleBounds({x:100000,y:100000,width:90,height:104});assert.ok(recovered.x<100000&&recovered.y<100000);
-    setEnabled(false);assert.equal(companion,null);assert.equal(prefs().enabled,false);
+    const menu=companionMenu(false);assert.equal(menu.items[0].label,'Убрать иконку');menu.items[0].click();assert.equal(companion,null);assert.equal(prefs().enabled,false);assert.equal(main.isVisible(),false);
+    setEnabled(true);assert.ok(companion);setEnabled(false);assert.equal(companion,null);
     console.log('DESKTOP_SMOKE_PASS: pages load, consent defaults off, companion survives main close, position persists, off-screen recovery and revoke work');quitting=true;app.quit();
   }
 }).catch(error=>{console.error(error);app.exit(1)});

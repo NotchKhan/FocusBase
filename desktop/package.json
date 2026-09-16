@@ -1,7 +1,7 @@
 {
   "name": "focusbase-desktop",
   "productName": "FocusBase",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "FocusBase desktop study companion",
   "author": "FocusBase",
   "private": true,
