@@ -1,9 +1,9 @@
 const {app,BrowserWindow,protocol,net,ipcMain,screen,Tray,Menu,nativeImage,shell}=require('electron');
 const fs=require('node:fs');const path=require('node:path');const {pathToFileURL}=require('node:url');
 const smoke=process.argv.includes('--smoke-test');
-if(smoke)app.setPath('userData',path.join(app.getPath('temp'),'focusbase-desktop-smoke-'+process.pid));
+if(smoke)app.setPath('userData',process.env.FOCUSBASE_SMOKE_PROFILE||path.join(app.getPath('temp'),'focusbase-desktop-smoke-'+process.pid));
 protocol.registerSchemesAsPrivileged([{scheme:'focusbase',privileges:{standard:true,secure:true,supportFetchAPI:true,corsEnabled:true}}]);
-if(!app.requestSingleInstanceLock())app.quit();
+if(!app.requestSingleInstanceLock())app.exit(0);
 let main,companion,tray,quitting=false,enabled=false,expanded=false,position,drag,moveTimer;
 if(smoke)setTimeout(()=>{console.error('Desktop smoke test timed out');app.exit(1)},45000).unref();
 const origin='focusbase://app';const prefsPath=()=>path.join(app.getPath('userData'),'desktop.json');
@@ -84,7 +84,16 @@ app.whenReady().then(async()=>{
     companion.destroy();createCompanion();assert.ok(Math.abs(companion.getBounds().x-moved.x)<=1);assert.ok(Math.abs(companion.getBounds().y-moved.y)<=1);
     const recovered=visibleBounds({x:100000,y:100000,width:90,height:104});assert.ok(recovered.x<100000&&recovered.y<100000);
     const menu=companionMenu(false);assert.equal(menu.items[0].label,'Убрать иконку');menu.items[0].click();assert.equal(companion,null);assert.equal(prefs().enabled,false);assert.equal(main.isVisible(),false);
-    setEnabled(true);assert.ok(companion);setEnabled(false);assert.equal(companion,null);
+    if(process.env.PORTABLE_EXECUTABLE_FILE){
+      // Reopening the same portable EXE must not remove the running copy's site.
+      const {spawn}=require('node:child_process');
+      await new Promise((resolve,reject)=>{const child=spawn(process.env.PORTABLE_EXECUTABLE_FILE,['--smoke-test'],{windowsHide:true,env:{...process.env,FOCUSBASE_SMOKE_PROFILE:app.getPath('userData')}});child.on('error',reject);child.on('exit',code=>code===0?resolve():reject(Error('Second launch exited '+code)))});
+      assert.ok(fs.existsSync(path.join(siteRoot,'index.html')),'Second launch removed the site files');
+    }
+    setEnabled(true);assert.ok(companion);
+    await new Promise((resolve,reject)=>{companion.webContents.once('did-finish-load',resolve);companion.webContents.once('did-fail-load',(_event,code,message)=>reject(Error(code+': '+message)))});
+    await companion.webContents.executeJavaScript(`new Promise((resolve,reject)=>{let attempts=0;const timer=setInterval(()=>{if(document.querySelector('.desktop-mini .companion-launcher')){clearInterval(timer);resolve(true)}else if(++attempts>40){clearInterval(timer);reject(Error('Restored companion did not mount'))}},100)})`);
+    assert.equal(companion.isAlwaysOnTop(),true);setEnabled(false);assert.equal(companion,null);
     console.log('DESKTOP_SMOKE_PASS: pages load, consent defaults off, companion survives main close, position persists, off-screen recovery and revoke work');quitting=true;app.quit();
   }
 }).catch(error=>{console.error(error);app.exit(1)});

@@ -1,7 +1,7 @@
 {
   "name": "focusbase-desktop",
   "productName": "FocusBase",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "FocusBase desktop study companion",
   "author": "FocusBase",
   "private": true,
@@ -31,6 +31,9 @@
     "win": {
       "target": "portable",
       "signAndEditExecutable": false
+    },
+    "portable": {
+      "unpackDirName": true
     },
     "artifactName": "FocusBase-Desktop-${version}.exe"
   },
