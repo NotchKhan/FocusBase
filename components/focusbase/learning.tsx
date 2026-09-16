@@ -1,4 +1,5 @@
 'use client';
+import {TaskDuration} from './task-duration';
 import {useState} from 'react';
 import {Plus,Repeat2,Play,ArrowRight,ChevronLeft,ChevronRight,NotebookPen,Check,X,Undo2} from 'lucide-react';
 import {useApp,TextInput,Select,SafeLink} from './ui';
@@ -12,7 +13,7 @@ export function QuickCapture(){
   const today=localDay(s.settings.timezone);const date=day==='today'?today:day==='tomorrow'?addDays(today,1):'';
   return <section className="quick-capture" data-localized aria-label={l('Быстрая задача','Quick task')}><form onSubmit={async e=>{e.preventDefault();if(busy||!title.trim())return;setBusy(true);const id=crypto.randomUUID();const ok=await run(d=>{d.tasks.push(taskSchema.parse({...baseRecord(title.trim()),id,date,minutes:Number(minutes),direction,status:date?'todo':'inbox'}))});setBusy(false);if(ok){setTitle('');setCreated(id)}}}>
     <div className="capture-line"><Plus size={20}/><TextInput maxLength={500} required value={title} onChange={e=>setTitle(e.target.value)} aria-label={l('Название быстрой задачи','Quick task title')} placeholder={l('Что сделаешь следующим?','What will you do next?')}/><button type="submit" className="primary" disabled={busy||!title.trim()}>{l('Добавить','Add')}</button></div>
-    <div className="capture-options"><Select label={l('День задачи','Task day')} value={day} onChange={setDay} options={ [['today',l('Сегодня','Today')],['tomorrow',l('Завтра','Tomorrow')],['inbox',l('Без даты','Unscheduled')]]}/><Select label={l('Продолжительность','Duration')} value={minutes} onChange={setMinutes} options={['15','25','45','60','90'].map(n=>[n,n+' '+l('мин','min')])}/><Select label={l('Направление','Subject')} value={direction} onChange={setDirection} options={directions.map(d=>[d,translateText(d,language)])}/></div>
+    <div className="capture-options"><Select label={l('День задачи','Task day')} value={day} onChange={setDay} options={ [['today',l('Сегодня','Today')],['tomorrow',l('Завтра','Tomorrow')],['inbox',l('Без даты','Unscheduled')]]}/><TaskDuration compact value={minutes} onChange={setMinutes}/><Select label={l('Направление','Subject')} value={direction} onChange={setDirection} options={directions.map(d=>[d,translateText(d,language)])}/></div>
   </form>{created&&<div className="capture-success" role="status"><Check size={16}/><span>{l('Задача добавлена','Task added')}</span><button onClick={()=>edit({kind:'tasks',id:created})}>{l('Открыть','Open')}</button><button disabled={busy} onClick={async()=>{setBusy(true);const ok=await run(d=>{if(d.active?.taskId===created)throw Error(l('Сначала завершите фокус по этой задаче.','Finish this task’s focus session first.'));const t=d.tasks.find(t=>t.id===created);if(t)t.deletedAt=Date.now()});setBusy(false);if(ok)setCreated('')}}><Undo2 size={14}/>{l('Отменить','Undo')}</button></div>}</section>
 }
 
