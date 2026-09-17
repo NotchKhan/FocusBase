@@ -1,14 +1,14 @@
 {
   "name": "focusbase-desktop",
   "productName": "FocusBase",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "FocusBase desktop study companion",
   "author": "FocusBase",
   "private": true,
   "main": "main.cjs",
   "scripts": {
     "start": "electron .",
-    "package": "electron-builder --win portable --x64"
+    "package": "electron-builder --win nsis --x64"
   },
   "build": {
     "appId": "app.focusbase.desktop",
@@ -29,13 +29,18 @@
       }
     ],
     "win": {
-      "target": "portable",
+      "target": "nsis",
       "signAndEditExecutable": false
     },
-    "portable": {
-      "unpackDirName": true
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": false,
+      "shortcutName": "FocusBase",
+      "createDesktopShortcut": "always"
     },
-    "artifactName": "FocusBase-Desktop-${version}.exe"
+    "artifactName": "FocusBase-Setup-${version}.exe"
   },
   "devDependencies": {
     "electron": "^43.7.0",
