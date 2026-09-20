@@ -2,7 +2,7 @@
 import {createContext,useContext,useEffect,useRef,useState,type ComponentProps} from 'react';
 import {DayButton} from 'react-day-picker';
 import {ru,enGB} from 'date-fns/locale';
-import {CalendarDays,Plus,Target,Flag,Clock3,CheckCircle2,ChevronRight,Repeat2,ListTodo} from 'lucide-react';
+import {CalendarDays,Plus,Target,Flag,CheckCircle2,ChevronRight,Repeat2,ListTodo} from 'lucide-react';
 import {Calendar} from '@/components/ui/calendar';
 import {calendarItems,baseRecord,calendarEventSchema,localDay,weekStart,addDays,type CalendarItem,type CalendarEvent,type ExamId} from '@/lib/focusbase/domain';
 import {exams} from '@/lib/focusbase/exams';

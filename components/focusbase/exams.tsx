@@ -4,7 +4,7 @@ import {Plus,Target,CalendarDays,ArrowUpRight,Check,BookmarkPlus,Link2,Pencil,Ch
 import {Progress} from '@/components/ui/progress';
 import {exams,studyResources} from '@/lib/focusbase/exams';
 import {baseRecord,examFor,examGoalSchema,resourceSchema,canonicalUrl,visible,localDay,type ExamId,type ExamGoal} from '@/lib/focusbase/domain';
-import {useApp,Field,TextInput,Select,TaskRow,ResourceLink,useSave,FooterActions} from './ui';
+import {useApp,Field,TextInput,Select,TaskRow,ResourceLink,useSave} from './ui';
 import {ResourceIcon,sectionIcons} from './icons';
 
 export function ExamView({examId}:{examId:ExamId}){

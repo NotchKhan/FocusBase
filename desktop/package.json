@@ -1,9 +1,9 @@
 {
   "name": "focusbase-desktop",
-  "productName": "FocusBase",
-  "version": "1.0.6",
-  "description": "FocusBase desktop study companion",
-  "author": "FocusBase",
+  "productName": "ÇalışBase",
+  "version": "1.0.7",
+  "description": "ÇalışBase desktop study companion",
+  "author": "ÇalışBase",
   "private": true,
   "main": "main.cjs",
   "scripts": {
@@ -37,10 +37,10 @@
       "perMachine": false,
       "deleteAppDataOnUninstall": false,
       "runAfterFinish": false,
-      "shortcutName": "FocusBase",
+      "shortcutName": "ÇalışBase",
       "createDesktopShortcut": "always"
     },
-    "artifactName": "FocusBase-Setup-${version}.exe"
+    "artifactName": "ÇalışBase-Setup-${version}.exe"
   },
   "devDependencies": {
     "electron": "^43.7.0",

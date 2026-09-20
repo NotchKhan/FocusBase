@@ -4,8 +4,15 @@ import {TodayView as BaseTodayView} from './views';
 import {useApp,Field,TextArea,TextInput} from './ui';
 import {localDay} from '@/lib/focusbase/domain';
 import {useEffect,useState} from 'react';
-import {Pencil,RotateCcw} from 'lucide-react';
+import {Pencil,RotateCcw,Eye,EyeOff} from 'lucide-react';
 import {translateText} from './i18n';
+
+import {useCompanionVisibility} from './use-companion-visibility';
+
+export function CompanionToggle(){
+  const {language}=useApp();const {enabled,busy,error,change}=useCompanionVisibility();const en=language==='en';
+  return <div className="home-companion-control" data-localized><button className="secondary" data-companion-toggle aria-pressed={enabled} disabled={busy} onClick={()=>void change(!enabled)}>{enabled?<EyeOff size={16}/>:<Eye size={16}/>} {enabled?(en?'Hide icon':'Скрыть иконку'):(en?'Show icon':'Показать иконку')}</button>{error&&<span role="alert">{error}</span>}</div>;
+}
 
 const quotes=[
   {jp:'誰もあなたを救わない',ru:'Никто не придёт спасать твой план.'},
@@ -19,7 +26,7 @@ const quotes=[
 
 export function DailyQuote(){
   const {s,edit,language}=useApp();
-  const [now,setNow]=useState(Date.now());
+  const [now,setNow]=useState(Date.now);
   useEffect(()=>{const timer=setInterval(()=>setNow(Date.now()),60000);return()=>clearInterval(timer)},[]);
   const day=localDay(s.settings.timezone,now);
   const seed=Math.floor(Date.parse(day+'T12:00:00Z')/86400000);
@@ -42,6 +49,7 @@ export function QuoteForm(){
 
 export function TodayView(){
   const {s,language}=useApp();
-  const date=new Intl.DateTimeFormat(language==='en'?'en-US':'ru-RU',{timeZone:s.settings.timezone,weekday:'long',day:'numeric',month:'long'}).format(Date.now());
-    return <><div className="today-heading-row"><div className="today-heading-copy"><p className="eyebrow">СЕГОДНЯ</p><h1>Сегодня</h1><p className="today-heading-date">{date}</p></div><span className="today-heading-divider" aria-hidden="true"/><DailyQuote/></div><QuickCapture/><BaseTodayView/><ReviewQueue compact/><ReviewShortcut/></>;
+  const [now,setNow]=useState(Date.now);useEffect(()=>{const timer=setInterval(()=>setNow(Date.now()),60000);return()=>clearInterval(timer)},[]);
+  const date=new Intl.DateTimeFormat(language==='en'?'en-US':'ru-RU',{timeZone:s.settings.timezone,weekday:'long',day:'numeric',month:'long'}).format(now);
+    return <><div className="today-heading-row"><div className="today-heading-copy"><p className="eyebrow">СЕГОДНЯ</p><h1>Сегодня</h1><p className="today-heading-date">{date}</p></div><span className="today-heading-divider" aria-hidden="true"/><DailyQuote/></div><CompanionToggle/><QuickCapture/><BaseTodayView/><ReviewQueue compact/><ReviewShortcut/></>;
 }

@@ -11,7 +11,7 @@ export function useCompanionPosition(desktop:boolean){
   const clamp=(p:Position)=>({x:Math.max(8,Math.min(p.x,innerWidth-(launcher.current?.offsetWidth||60)-8)),y:Math.max(8,Math.min(p.y,innerHeight-(launcher.current?.offsetHeight||56)-8))});
   useEffect(()=>{
     if(desktop)return;
-    try{const saved=JSON.parse(localStorage.getItem(key)||'null');if(saved&&Number.isFinite(saved.x)&&Number.isFinite(saved.y))setPosition(clamp(saved))}catch{/* Storage may be unavailable. */}
+    try{const saved=JSON.parse(localStorage.getItem(key)||'null');if(saved&&Number.isFinite(saved.x)&&Number.isFinite(saved.y))queueMicrotask(()=>setPosition(clamp(saved)))}catch{/* Storage may be unavailable. */}
     const resize=()=>setPosition(p=>p?clamp(p):p);
     const observer=new ResizeObserver(resize);if(launcher.current)observer.observe(launcher.current);
     window.addEventListener('resize',resize);return()=>{observer.disconnect();window.removeEventListener('resize',resize)};

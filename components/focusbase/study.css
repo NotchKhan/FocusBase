@@ -64,3 +64,19 @@
 @media(max-width:999px){.exam-top-nav{display:none}.mobile-exam-nav{display:block}.mobile-exam-nav .workspace-label{padding:22px 12px 10px}.exam-layout{grid-template-columns:1fr}.exam-goal-rail{grid-row:1}.exam-goals-panel{display:block}.goal-empty{padding:20px}.goal-empty>svg{display:none}.goal-empty h3{font-size:18px}.goal-empty p{margin:6px 0 15px}.goal-empty .primary{width:auto}.calendar-shortcut{display:none}.study-resource-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.exam-intro{align-items:flex-start;margin-bottom:24px}.exam-intro>div{align-items:flex-start}.exam-intro .secondary{font-size:0;padding:11px}.exam-intro .secondary svg{width:19px;height:19px}.exam-intro p{font-size:14px}.exam-main .section-title{gap:10px;align-items:center}.exam-main .section-title h2{font-size:18px}.exam-main .section-title .primary{padding:9px 11px;font-size:13px}.study-resource-grid{grid-template-columns:1fr}.subject-tabs{gap:4px}.subject-tabs button{font-size:13px;padding:8px}.study-resource{padding:20px}.form-actions{flex-wrap:wrap}.quote-preview p{font-size:20px}.planner-calendar{padding:15px 8px 10px}.planner-calendar .rdp-caption_label{font-size:16px}.planner-day-button,.planner-calendar .rdp-day{height:56px;min-height:56px}.planner-day-button{padding:5px 3px;align-items:center;gap:2px}.planner-day-content{display:none}.planner-mobile-count{display:block;height:15px;font-size:10px;font-weight:650;color:var(--primary)}.planner-day-number{width:23px;height:23px;margin:0;font-size:13px}.calendar-legend{gap:10px;padding:13px 12px;font-size:11px}.calendar-legend svg{width:13px}.calendar-view-switch button{font-size:13px;padding:8px 12px}.calendar-workspace .view-toolbar>.primary{font-size:13px;padding:10px 12px}.day-agenda{padding:20px}.agenda-actions .secondary{min-height:40px}.calendar-legend>.text-link{font-size:12px}.app-dialog .task-schedule{grid-template-columns:1fr 1fr}.quote-edit-button{top:6px;right:6px}}
 @media(prefers-reduced-motion:reduce){.exam-top-nav button,.study-resource,.planner-day-button,.quote-edit-button{transition:none}}
+
+.home-companion-control{display:flex;justify-content:flex-end;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 16px}.home-companion-control .secondary{font-size:13px}
+
+/* Long user content must wrap within cards instead of widening the page. */
+.library-card,.resource-line,.resource-line>div,.exam-main,.exam-saved-resources,.exam-saved-resources>div{min-width:0}
+.library-card p,.resource-line small,.resource-link,.resource-link>span,.study-resource-title{overflow-wrap:anywhere;min-width:0;max-width:100%}
+.resource-line>div{flex:1}
+.table-pagination{margin:12px 0 18px}.table-pagination button{min-width:40px}
+.task-missed{color:#a73232;background:#fff1ee;border-color:#e4aaa1}.task-row.task-missed{border:1px solid #e4aaa1;border-radius:10px;padding:12px;margin:6px 0}
+.task-missed .task-open strong,.task-missed .missed-label,.missed-summary{color:#a73232}.task-missed .task-open strong{text-decoration:none}
+.missed-label{font-weight:650}.missed-summary{display:block;padding:12px 16px;margin-bottom:20px;border:1px solid #e4aaa1;border-radius:10px;background:#fff1ee;text-align:left}
+.dark .task-missed,.dark .missed-summary{background:#382421;border-color:#79453d;color:#ffc2b8}.dark .task-missed .task-open strong,.dark .task-missed .missed-label{color:#ffc2b8}
+.app-dialog.compact-task .task-schedule{display:grid}
+.today-grid>section,.today-grid>.right-rail{min-width:0}
+.today-grid .section-title{flex-wrap:wrap}
+@media(max-width:767px){.today-grid{grid-template-columns:minmax(0,1fr)}}

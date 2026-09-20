@@ -1,7 +1,7 @@
 'use client';
 import {TaskDuration} from './task-duration';
 import {useState} from 'react';
-import {Plus,Repeat2,Play,ArrowRight,ChevronLeft,ChevronRight,NotebookPen,Check,X,Undo2} from 'lucide-react';
+import {Plus,Repeat2,Play,ArrowRight,ChevronLeft,ChevronRight,NotebookPen,Check,Undo2} from 'lucide-react';
 import {useApp,TextInput,Select,SafeLink} from './ui';
 import {addDays,baseRecord,directions,localDay,taskSchema,visible,weekStart,type Resource} from '@/lib/focusbase/domain';
 import {practiceResource,recordReview,reviewIntervals,scheduleReview,weeklyNote,weekReport} from '@/lib/focusbase/learning';

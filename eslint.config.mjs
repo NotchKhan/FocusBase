@@ -10,9 +10,13 @@ const eslintConfig = defineConfig([
     // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",
+    "outputs/**",
+    "work/**",
+    ".sites-runtime/**",
     "build/**",
     "next-env.d.ts",
   ]),
+  {files: ["desktop/**/*.cjs", "scripts/**/*.cjs"], rules: {"@typescript-eslint/no-require-imports":"off"}},
   {
     files: ["components/ui/**/*.{ts,tsx}", "hooks/use-mobile.ts"],
     rules: {

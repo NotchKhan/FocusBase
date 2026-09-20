@@ -5,7 +5,7 @@ export type Language='ru'|'en';
 const copy:Record<string,string>={
   'СЕГОДНЯ':'TODAY','Сегодня':'Today','Задачи':'Tasks','Проекты':'Projects','Фокус':'Focus','Библиотека':'Library','Заметки':'Notes','Мои таблицы':'My tables','План недели':'Week plan','Архив':'Archive','Корзина':'Trash','Настройки':'Settings','Настройки и данные':'Settings & data',
   'ЛИЧНОЕ ПРОСТРАНСТВО':'PERSONAL SPACE','Данные на этом устройстве':'Data on this device','Моё пространство':'My space','Учёба · проекты · развитие':'Study · projects · growth','Я':'Me','Режим дня':'Day mode','мин':'min','минут':'minutes','шагов':'steps','задач':'tasks','факт':'actual',
-  'Поиск':'Search','Поиск в пространстве':'Search workspace','Добавить':'Add','Повторить':'Retry','Язык интерфейса':'Interface language','Открываем ваше пространство…':'Opening your space…','Закройте другие вкладки FocusBase и обновите страницу.':'Close other FocusBase tabs and reload the page.','Не удалось открыть хранилище.':'Could not open local storage.','Не удалось сохранить:':'Could not save:','Офлайн · изменения останутся на этом устройстве':'Offline · changes stay on this device','Фокус на паузе':'Focus paused','Фокус запущен':'Focus running','Свободная сессия':'Free session','Вернуться →':'Return →','Фактическое время относительно плана':'Actual time against plan',
+  'Поиск':'Search','Поиск в пространстве':'Search workspace','Добавить':'Add','Повторить':'Retry','Язык интерфейса':'Interface language','Открываем ваше пространство…':'Opening your space…','Закройте другие вкладки ÇalışBase и обновите страницу.':'Close other ÇalışBase tabs and reload the page.','Не удалось открыть хранилище.':'Could not open local storage.','Не удалось сохранить:':'Could not save:','Офлайн · изменения останутся на этом устройстве':'Offline · changes stay on this device','Фокус на паузе':'Focus paused','Фокус запущен':'Focus running','Свободная сессия':'Free session','Вернуться →':'Return →','Фактическое время относительно плана':'Actual time against plan',
   'ВРЕМЯ ДЛЯ ОДНОЙ ЗАДАЧИ':'TIME FOR ONE TASK','Настройте свой ритм':'Set your rhythm','Обратный отсчёт':'Countdown','Свободный':'Free','Свободный таймер':'Free timer','Без задачи':'No task','Работа, минут':'Work, minutes','Перерыв, минут':'Break, minutes','Начать фокус':'Start focus','Звуки и уведомления выключены по умолчанию. Перерывы в Pomodoro начинаются по вашему нажатию.':'Sounds and notifications are off by default. Pomodoro breaks start when you press the button.',
   'ГЛАВНЫЙ ФОКУС':'MAIN FOCUS','МОЙ ДЕНЬ':'MY DAY','Откройте материал, начните занятие и сохраните результат.':'Open the material, start a session, and save the result.','Открыть задачу':'Open task','Прикрепить материал':'Attach material','Дальше по плану':'Up next','Все задачи':'All tasks','Сосредоточьтесь на главном':'Stay with the main thing','План пока свободен':'Your plan is open','Оставьте место для отдыха. Необязательно заполнять весь день.':'Leave room for rest. You do not need to fill every hour.','Выполнено сегодня':'Completed today','Осталось с прошлых дней':'Carried over','Ничего не переносим автоматически. Решите, что всё ещё актуально.':'Nothing is moved automatically. Decide what still matters.','На сегодня':'For today','Без даты':'No date','Отменить':'Cancel','Всё на сегодня выполнено':'Everything for today is done','Можно остановиться и отдохнуть. Или выбрать следующий небольшой шаг.':'You can stop and rest, or choose a small next step.','Одна понятная задача — уже хороший план.':'One clear task is already a good plan.','План можно менять в течение дня':'The plan can change during the day','Время на сегодня':'Time today','Запланировано':'Planned','В фокусе':'Focused','Время — ориентир, а не оценка.':'Time is a guide, not a grade.','Под рукой':'At hand','Добавьте материалы в избранное, чтобы быстро возвращаться к ним.':'Add materials to your favorites to return quickly.','Открыть библиотеку':'Open library','Освободить голову':'Clear your head','Ссылка':'Link','Задача':'Task','Заметка':'Note','Создать первую задачу':'Create first task','Прикрепите ссылки в карточке задачи.':'Attach links in the task card.','Первая сессия ещё впереди':'Your first session is ahead','После занятия здесь появится ваш результат.':'Your result will appear here after the session.','Без итога':'No summary','Дальше:':'Next:',
   'Никто не придёт спасать твой план.':'No one is coming to save your plan.','Время не вернётся. Пропущенная практика сама не станет навыком.':'Time will not return. Missed practice will not become skill on its own.','Намерение ничего не меняет. Меняет только действие.':'Intention changes nothing. Action changes everything.','Каждый отданный прокрастинации день потом оплачивается усилием.':'Every day given to procrastination is paid back with effort.','Талант без повторений проигрывает тому, кто продолжает.':'Talent without repetition loses to the one who keeps going.','Цель не обязана случиться. Без часов работы это только желание.':'A goal does not happen by itself. Without hours of work, it is only a wish.','Самая неприятная конкуренция — с версией себя, которой ты мог стать.':'The hardest competition is with the person you could have become.',
@@ -39,30 +39,27 @@ const allCopy={...copy,...extra,...studyCopy};
 
 const weekdays:Record<string,string>={понедельник:'Monday',вторник:'Tuesday',среда:'Wednesday',четверг:'Thursday',пятница:'Friday',суббота:'Saturday',воскресенье:'Sunday'};
 const months:Record<string,string>={января:'January',февраля:'February',марта:'March',апреля:'April',мая:'May',июня:'June',июля:'July',августа:'August',сентября:'September',октября:'October',ноября:'November',декабря:'December'};
-const reverse:Record<string,string>={};
-for(const [ru,en] of Object.entries(allCopy))if(reverse[en]===undefined)reverse[en]=ru;
-const reverseWeekdays=Object.fromEntries(Object.entries(weekdays).map(([ru,en])=>[en.toLowerCase(),ru]));
-const reverseMonths=Object.fromEntries(Object.entries(months).map(([ru,en])=>[en.toLowerCase(),ru]));
 const shortWeekdays:Record<string,string>={пн:'Mon',вт:'Tue',ср:'Wed',че:'Thu',пя:'Fri',су:'Sat',во:'Sun'};
-const reverseShortWeekdays=Object.fromEntries(Object.entries(shortWeekdays).map(([ru,en])=>[en.toLowerCase(),ru]));
 
 function preserveCase(value:string,replacement:string){return value[0]===value[0].toUpperCase()?replacement[0].toUpperCase()+replacement.slice(1):replacement}
 function tokenReplace(value:string,map:Record<string,string>){return value.replace(/\p{L}+/gu,token=>map[token.toLowerCase()]?preserveCase(token,map[token.toLowerCase()]):token)}
 
 export function translateText(value:string,language:Language){
+  if(language==='ru')return value;
   const trimmed=value.trim();
   if(!trimmed)return value;
-  const table=language==='en'?allCopy:reverse;
+  const table=allCopy;
   const direct=table[trimmed];
   if(direct!==undefined)return value.replace(trimmed,direct);
   if(language==='en'){
     const next=value.replace(/из\s+(\d+)\s+задач\s+выполнено/gu,'of $1 tasks completed').replace(/(\d+)\s+минут(?!\p{L})/gu,'$1 minutes').replace(/(\d+)\s+мин(?!\p{L})/gu,'$1 min').replace(/(\d+)\s+шагов(?!\p{L})/gu,'$1 steps').replace(/(\d+)\s+задач(?!\p{L})/gu,'$1 tasks').replace(/min\s+задач/gu,'min tasks').replace(/(?<!\p{L})минут(?!\p{L})/gu,'minutes').replace(/(?<!\p{L})мин(?!\p{L})/gu,'min').replace(/(?<!\p{L})задач(?!\p{L})/gu,'tasks').replace(/(?<!\p{L})факт(?!\p{L})/gu,'actual').replace(/(?<!\p{L})приоритет(?!\p{L})/gu,'priority').replace(/^Начать фокус:/,'Start focus:').replace(/^Завершить /,'Complete ').replace(/^Избранное:/,'Favorite:');
     return tokenReplace(next,{...weekdays,...months,...shortWeekdays});
   }
-  const next=value.replace(/of\s+(\d+)\s+tasks\s+completed/gu,'из $1 задач выполнено').replace(/(\d+)\s+minutes(?!\p{L})/gu,'$1 минут').replace(/(\d+)\s+min(?!\p{L})/gu,'$1 мин').replace(/(\d+)\s+steps(?!\p{L})/gu,'$1 шагов').replace(/(\d+)\s+tasks(?!\p{L})/gu,'$1 задач').replace(/мин\s+tasks/gu,'мин задач').replace(/\bminutes\b/g,'минут').replace(/\bmin\b/g,'мин').replace(/\btasks\b/g,'задач').replace(/\bactual\b/g,'факт').replace(/\bpriority\b/g,'приоритет').replace(/^Start focus:/,'Начать фокус:').replace(/^Complete /,'Завершить ').replace(/^Favorite:/,'Избранное:');
-  return tokenReplace(next,{...reverseWeekdays,...reverseMonths,...reverseShortWeekdays});
+  return value;
 }
 
+const sourceText=new WeakMap<Text,{source:string;rendered:string}>();
+const sourceAttributes=new WeakMap<HTMLElement,Map<string,{source:string;rendered:string}>>();
 export function translateDocument(language:Language){
   if(typeof document==='undefined')return;
   const walk=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
@@ -70,12 +67,12 @@ export function translateDocument(language:Language){
   while((node=walk.nextNode()))nodes.push(node as Text);
   for(const text of nodes){
     if(text.parentElement?.closest('script,style,textarea,input,[contenteditable="true"],[data-no-translate],[data-localized]'))continue;
-    const next=translateText(text.nodeValue||'',language);
+    const value=text.nodeValue||'';const prior=sourceText.get(text);const source=prior?.rendered===value?prior.source:value;const next=translateText(source,language);sourceText.set(text,{source,rendered:next});
     if(next!==text.nodeValue)text.nodeValue=next;
   }
   for(const el of Array.from(document.querySelectorAll<HTMLElement>('[aria-label],[placeholder],[title]'))){
     if(el.closest('[data-no-translate],[data-localized]'))continue;
-    for(const attr of ['aria-label','placeholder','title'] as const){const value=el.getAttribute(attr);if(value){const next=translateText(value,language);if(next!==value)el.setAttribute(attr,next)}}
+    for(const attr of ['aria-label','placeholder','title'] as const){const value=el.getAttribute(attr);if(value){let attrs=sourceAttributes.get(el);if(!attrs){attrs=new Map();sourceAttributes.set(el,attrs)}const prior=attrs.get(attr);const source=prior?.rendered===value?prior.source:value;const next=translateText(source,language);attrs.set(attr,{source,rendered:next});if(next!==value)el.setAttribute(attr,next)}}
   }
   document.documentElement.lang=language==='en'?'en':'ru';
 }
