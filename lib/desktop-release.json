@@ -1,10 +1,10 @@
 {
+  "releaseUrl": "https://github.com/NotchKhan/FocusBase/releases/tag/v1.0.7",
+  "sizeBytes": 104872352,
   "version": "1.0.7",
-  "publisher": "NEXERA",
+  "signed": false,
+  "sha256": "c603431f0875bf29aa3c7cdcf2c063c874df25e2f3de7bd0dd015d6a06cd1393",
+  "downloadUrl": "https://github.com/NotchKhan/FocusBase/releases/download/v1.0.7/CalisBase-Setup-1.0.7.exe",
   "platform": "Windows 10/11 · x64",
-  "downloadUrl": null,
-  "releaseUrl": null,
-  "sha256": null,
-  "sizeBytes": null,
-  "signed": false
+  "publisher": "NEXERA"
 }
