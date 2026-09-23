@@ -1,0 +1,47 @@
+name: Publish verified Windows installer
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Successful Windows release verification run ID
+        required: true
+        type: string
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: publish-windows-release
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      VERIFIED_RUN: ${{ inputs.run_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Check verification run
+        run: |
+          [[ "$VERIFIED_RUN" =~ ^[0-9]+$ ]] || exit 1
+          gh api "repos/$GH_REPO/actions/runs/$VERIFIED_RUN" > verified-run.json
+          node -e "const r=require('./verified-run.json');if(r.conclusion!=='success'||r.path!=='.github/workflows/desktop-release.yml'||r.head_branch!=='main')throw Error('Unverified source');"
+      - uses: actions/download-artifact@v4
+        with:
+          name: verified-windows-installer
+          path: release
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ github.token }}
+      - name: Verify files and write release notes
+        run: node scripts/prepare-verified-release.mjs
+      - name: Upload exact verified files and publish
+        run: |
+          target=$(node -p "require('./verified-run.json').head_sha")
+          gh release create v1.0.7 release/CalisBase-Setup-1.0.7.exe release/SHA256SUMS.txt release/antivirus-report.json release/installer-update-report.json --draft --target "$target" --title 'ÇalışBase 1.0.7 · NEXERA' --notes-file release-notes.md
+          gh api "repos/$GH_REPO/releases/tags/v1.0.7" > uploaded-release.json
+          node scripts/prepare-verified-release.mjs verify-upload
+          gh release edit v1.0.7 --draft=false --latest
