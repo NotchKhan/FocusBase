@@ -50,7 +50,10 @@ try{
     };
     contains(after,before);
     assert.equal(await evaluate(`localStorage.getItem('focusbase-language')`),'en');
-    assert.ok(await evaluate(`document.body.innerText.includes('IELTS — keep this task')`),'Preserved task is not visible');
+    await evaluate(`location.hash='#tasks'`);
+    let taskVisible=false;
+    for(let n=0;n<80;n++){if(await evaluate(`document.querySelector('main.page')?.innerText.includes('IELTS — keep this task')`)){taskVisible=true;break}await sleep(100)}
+    assert.ok(taskVisible,'Preserved task is not visible in the task list');
   }
   console.log(`INSTALLED_WORKSPACE_${mode.toUpperCase()}_PASS`);
   await call('Page.close');
