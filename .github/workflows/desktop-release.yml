@@ -1,0 +1,75 @@
+name: Windows release verification
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-release
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: windows-2022
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm ci --prefix desktop
+      - run: npm test
+      - run: npm run typecheck
+      - run: npm audit --omit=dev --audit-level=high
+      - run: npm audit --prefix desktop --audit-level=high
+      - run: npm run desktop:package
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      - name: Scan the exact release installer
+        shell: pwsh
+        run: ./scripts/verify-installer-antivirus.ps1
+      - uses: actions/checkout@v4
+        with:
+          ref: f6eea2a
+          path: previous
+      - name: Build the previous 1.0.6 installer for update testing
+        shell: pwsh
+        run: |
+          Set-Location previous
+          npm ci
+          if ($LASTEXITCODE -ne 0) { throw 'Previous dependency installation failed' }
+          npm ci --prefix desktop
+          if ($LASTEXITCODE -ne 0) { throw 'Previous desktop dependencies failed' }
+          npm run desktop:package
+          if ($LASTEXITCODE -ne 0) { throw 'Previous installer build failed' }
+      - name: Install, seed data, update and verify installed application
+        shell: pwsh
+        run: ./scripts/verify-installer-update.ps1
+      - name: Package verified release files
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force outputs/release | Out-Null
+          Copy-Item -LiteralPath 'outputs/desktop/ÇalışBase-Setup-1.0.7.exe' -Destination 'outputs/release/CalisBase-Setup-1.0.7.exe'
+          $hash = (Get-FileHash 'outputs/release/CalisBase-Setup-1.0.7.exe' -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  CalisBase-Setup-1.0.7.exe" | Set-Content outputs/release/SHA256SUMS.txt -Encoding utf8NoBOM
+          Copy-Item outputs/antivirus-report.json,outputs/installer-update-report.json outputs/release/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verified-windows-installer
+          path: outputs/release/*
+          if-no-files-found: error
+          retention-days: 30
+      - name: Preserve verification logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-verification-logs
+          path: |
+            outputs/*report.json
+            outputs/*smoke*.log
+            outputs/antivirus-scan.txt
+          if-no-files-found: ignore

@@ -3,7 +3,7 @@
   "productName": "ÇalışBase",
   "version": "1.0.7",
   "description": "ÇalışBase desktop study companion",
-  "author": "ÇalışBase",
+  "author": "NEXERA",
   "private": true,
   "main": "main.cjs",
   "scripts": {
@@ -11,6 +11,7 @@
     "package": "electron-builder --win nsis --x64"
   },
   "build": {
+    "copyright": "Copyright © 2026 NEXERA",
     "appId": "app.focusbase.desktop",
     "electronDist": "node_modules/electron/dist",
     "directories": {
@@ -30,7 +31,7 @@
     ],
     "win": {
       "target": "nsis",
-      "signAndEditExecutable": false
+      "signAndEditExecutable": true
     },
     "nsis": {
       "oneClick": true,
