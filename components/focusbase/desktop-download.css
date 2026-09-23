@@ -1,0 +1,10 @@
+.desktop-download{display:flex;align-items:center;gap:10px;width:100%;padding:12px 10px;margin:6px 0;border:1px solid #446557;border-radius:10px;background:#214336;color:#edf3db;text-align:left;cursor:pointer;transition:background .15s,border-color .15s}
+.desktop-download:hover{background:#2b5142;border-color:#9aaf6a}
+.desktop-download:focus-visible{outline:2px solid #d7e35c;outline-offset:3px}
+.desktop-download>svg{flex:none}.desktop-download>svg:last-child{margin-left:auto;color:#d7e35c}
+.desktop-download span{font-size:13px;font-weight:600;line-height:1.35}.desktop-download small{display:block;margin-top:4px;font-size:10px;font-weight:400;color:#bacbc0;letter-spacing:.035em}
+.download-dialog{display:grid;gap:18px;min-width:0}.download-dialog p{margin:0}.download-intro{font-size:16px;line-height:1.55}.download-meta{font-size:12px;line-height:1.8;color:var(--muted-foreground)}
+.download-installer{display:flex;justify-content:center;gap:9px;text-decoration:none;padding:12px 16px;min-height:44px}
+.download-steps{margin:0;padding-left:22px;display:grid;gap:13px;font-size:13px;line-height:1.65;list-style:decimal}.download-steps li{padding-left:5px}
+.download-dialog>.secondary{justify-self:start}.download-pending{padding:14px;border:1px solid var(--border);border-radius:10px;font-size:13px;line-height:1.6}
+.download-verification{border-top:1px solid var(--border);padding-top:15px;font-size:12px;line-height:1.6}.download-verification summary{cursor:pointer;font-weight:600}.download-verification p{margin-top:12px}.download-verification code{display:block;margin:6px 0;overflow-wrap:anywhere;font-size:11px}.download-verification a{display:inline-flex;align-items:center;gap:5px;margin-top:10px;text-decoration:underline}
