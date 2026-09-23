@@ -34,7 +34,7 @@ jobs:
         run: ./scripts/verify-installer-antivirus.ps1
       - uses: actions/checkout@v4
         with:
-          ref: f6eea2a
+          ref: f6eea2acc8d1c7701f1b53706cf60a4738d56f08
           path: previous
       - name: Build the previous 1.0.6 installer for update testing
         shell: pwsh
