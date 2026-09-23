@@ -8,7 +8,8 @@
   "main": "main.cjs",
   "scripts": {
     "start": "electron .",
-    "package": "electron-builder --win nsis --x64"
+    "prepackage": "node node_modules/electron/install.js",
+    "package": "electron-builder --win nsis --x64 --publish never"
   },
   "build": {
     "copyright": "Copyright © 2026 NEXERA",

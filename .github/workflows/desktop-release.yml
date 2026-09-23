@@ -44,7 +44,11 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Previous dependency installation failed' }
           npm ci --prefix desktop
           if ($LASTEXITCODE -ne 0) { throw 'Previous desktop dependencies failed' }
-          npm run desktop:package
+          node desktop/node_modules/electron/install.js
+          if ($LASTEXITCODE -ne 0) { throw 'Previous Electron runtime download failed' }
+          npm run desktop:build
+          if ($LASTEXITCODE -ne 0) { throw 'Previous desktop site build failed' }
+          npm run package --prefix desktop -- --publish never
           if ($LASTEXITCODE -ne 0) { throw 'Previous installer build failed' }
       - name: Install, seed data, update and verify installed application
         shell: pwsh
