@@ -1,0 +1,54 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {PGlite} from '@electric-sql/pglite';
+import {emptyState} from '../lib/focusbase/domain.ts';
+
+test('Postgres RLS, grants, account binding and optimistic concurrency',async t=>{
+  const db=new PGlite();
+  t.after(()=>db.close());
+  const a='11111111-1111-4111-8111-111111111111',b='22222222-2222-4222-8222-222222222222';
+  await db.exec(`create schema auth; create table auth.users(id uuid primary key);
+    create role anon; create role authenticated;
+    grant usage on schema public,auth to anon,authenticated;
+    create function auth.uid() returns uuid language sql stable as $$
+      select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid
+    $$;
+    insert into auth.users values('${a}'),('${b}');`);
+  await db.exec(await readFile(new URL('../supabase/migrations/202609280001_accounts.sql',import.meta.url),'utf8'));
+  const as=async(role,user='')=>{await db.exec(`reset role; set role ${role};`);await db.query("select set_config('request.jwt.claim.sub',$1,false)",[user])};
+  const save=(owner,state,rev)=>db.query('select public.save_workspace($1,$2::jsonb,$3) as state',[owner,JSON.stringify(state),rev]);
+  const denied=async(action,code)=>assert.rejects(action,e=>e.code===code);
+  await as('anon');
+  await denied(db.query('select * from public.workspaces'),'42501');
+  await denied(save(a,emptyState(),0),'42501');
+  await as('authenticated',a);
+  const first=await save(a,emptyState(),0);assert.equal(first.rows[0].state.revision,1);
+  await denied(save(a,emptyState(),0),'40001');
+  await denied(save(b,emptyState(),0),'28000');
+  await denied(db.query('update public.workspaces set revision=55'),'42501');
+  await denied(db.query('delete from public.workspaces'),'42501');
+  await denied(db.query('insert into public.workspaces(user_id,revision,state) values($1,1,$2)',[b,'{}']),'42501');
+  const aState={...emptyState(),settings:{...emptyState().settings,customQuote:'A private value'},revision:999};
+  const second=await save(a,aState,1);assert.equal(second.rows[0].state.revision,2);
+  await denied(save(a,emptyState(),1),'40001');
+  await denied(save(a,{},2),'22023');
+  await denied(save(a,{...emptyState(),tasks:{}},2),'22023');
+  await denied(save(a,emptyState(),-1),'22023');
+  await denied(save(a,{...emptyState(),padding:'x'.repeat(8388608)},2),'22001');
+  await as('authenticated',b);
+  assert.equal((await db.query('select * from public.workspaces')).rows.length,0);
+  await denied(save(a,emptyState(),2),'28000');
+  await save(b,emptyState(),0);
+  const own=(await db.query('select * from public.workspaces')).rows;
+  assert.equal(own.length,1);assert.equal(own[0].user_id,b);assert.equal(own[0].state.settings.customQuote,'');
+  await as('authenticated');
+  assert.equal((await db.query('select * from public.workspaces')).rows.length,0);
+  await denied(save(a,emptyState(),2),'28000');
+  await as('authenticated',a);
+  const unchanged=(await db.query('select state from public.workspaces')).rows[0].state;
+  assert.equal(unchanged.revision,2);assert.equal(unchanged.settings.customQuote,'A private value');
+  await db.exec('reset role');
+  await db.query('delete from auth.users where id=$1',[b]);
+  assert.equal((await db.query('select * from public.workspaces where user_id=$1',[b])).rows.length,0);
+});

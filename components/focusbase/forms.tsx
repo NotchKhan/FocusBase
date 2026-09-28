@@ -1,4 +1,5 @@
 'use client';
+import {getWorkspaceScope} from '@/lib/focusbase/store';
 import {assertUnchanged} from '@/lib/focusbase/edit-conflict';
 import {TaskDuration} from './task-duration';
 import {useState,useEffect,useRef,useCallback} from 'react';
@@ -14,7 +15,7 @@ export function ProjectForm({id}:{id?:string}){const {s,edit,run}=useApp();const
 function inlineMarkdown(line:string){return line.split(/(\[[^\]]+\]\(https?:\/\/[^\s)]+\)|`[^`]+`|\*\*[^*]+\*\*)/g).map((part,i)=>{const m=part.match(/^\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)$/);if(m)return <SafeLink key={i} url={m[2]}>{m[1]}</SafeLink>;if(part.startsWith('`'))return <code key={i}>{part.slice(1,-1)}</code>;if(part.startsWith('**'))return <strong key={i}>{part.slice(2,-2)}</strong>;return part})}
 export function Markdown({body}:{body:string}){const blocks=body.split(/```/);return <div className="markdown" data-no-translate>{blocks.map((block,b)=>b%2?<pre key={b}><code>{block.replace(/^\w*\n/,'')}</code></pre>:block.split('\n').map((line,i)=>{const h=line.match(/^(#{1,3}) (.*)/);if(h)return h[1].length===1?<h2 key={i}>{inlineMarkdown(h[2])}</h2>:<h3 key={i}>{inlineMarkdown(h[2])}</h3>;if(/^[-*] \[[ x]\]/.test(line))return <p key={i}>{line[3]==='x'?'☑':'☐'} {inlineMarkdown(line.slice(6))}</p>;if(/^[-*] /.test(line))return <p key={i}>• {inlineMarkdown(line.slice(2))}</p>;return <p key={i}>{inlineMarkdown(line)||'\u00a0'}</p>}))}</div>}
 export function NoteForm({id,taskId,projectId}:{id?:string;taskId?:string;projectId?:string}){
- const {s,run,edit}=useApp();const draftKey='focusbase-note-draft:'+(id||'new');
+ const {s,run,edit}=useApp();const scope=getWorkspaceScope();const draftKey='focusbase-note-draft:'+(scope==='local'?'':scope+':')+(id||'new');
  const [original]=useState(()=>structuredClone(s.notes.find(note=>note.id===id)??null));
  const [n,set]=useState(()=>{
    try{const raw=sessionStorage.getItem(draftKey);if(raw){const draft=noteSchema.parse(JSON.parse(raw));if(!id||draft.id===id)return draft}}catch{}
