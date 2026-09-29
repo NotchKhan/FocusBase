@@ -49,6 +49,18 @@ test('Postgres RLS, grants, account binding and optimistic concurrency',async t=
   const unchanged=(await db.query('select state from public.workspaces')).rows[0].state;
   assert.equal(unchanged.revision,2);assert.equal(unchanged.settings.customQuote,'A private value');
   await db.exec('reset role');
+  // GitHub integration may apply this migration after the manual SQL Editor setup.
+  await db.exec(await readFile(new URL('../supabase/migrations/202609280001_accounts.sql',import.meta.url),'utf8'));
+  await as('authenticated',a);
+  assert.deepEqual((await db.query('select state from public.workspaces')).rows.map(r=>r.state),[unchanged]);
+  await as('anon');
+  await denied(db.query('select * from public.workspaces'),'42501');
+  await denied(save(a,emptyState(),2),'42501');
+  await as('authenticated',b);
+  assert.equal((await db.query('select user_id from public.workspaces')).rows[0].user_id,b);
+  await denied(db.query('update public.workspaces set revision=55'),'42501');
+  await denied(save(a,emptyState(),2),'28000');
+  await db.exec('reset role');
   await db.query('delete from auth.users where id=$1',[b]);
   assert.equal((await db.query('select * from public.workspaces where user_id=$1',[b])).rows.length,0);
 });

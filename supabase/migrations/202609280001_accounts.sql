@@ -1,5 +1,6 @@
 begin;
-create table public.workspaces (
+-- Safe to apply after the initial SQL Editor setup as well as on a new project.
+create table if not exists public.workspaces (
   user_id uuid primary key references auth.users(id) on delete cascade,
   revision bigint not null check (revision between 1 and 9007199254740991),
   state jsonb not null check (jsonb_typeof(state) = 'object'),
@@ -9,12 +10,13 @@ alter table public.workspaces enable row level security;
 alter table public.workspaces force row level security;
 revoke all on public.workspaces from public, anon, authenticated;
 grant select on public.workspaces to authenticated;
+drop policy if exists own_workspace_read on public.workspaces;
 create policy own_workspace_read on public.workspaces for select to authenticated
   using (user_id = (select auth.uid()));
 
 -- No client has direct write grants. Only this function can change its own
 -- caller's row, using an expected revision to prevent lost updates.
-create function public.save_workspace(p_account_id uuid, p_state jsonb, p_expected_revision bigint)
+create or replace function public.save_workspace(p_account_id uuid, p_state jsonb, p_expected_revision bigint)
 returns jsonb
 language plpgsql security definer set search_path = ''
 as $$
