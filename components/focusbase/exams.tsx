@@ -18,7 +18,7 @@ export function ExamView({examId}:{examId:ExamId}){
   const dateLabel=(date:string)=>new Intl.DateTimeFormat(en?'en-GB':'ru-RU',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}).format(new Date(date+'T12:00:00Z'));
   const [savingResource,setSavingResource]=useState('');
   return <div className="exam-workspace" data-localized>
-    <div className="exam-intro"><div><span className={'exam-emblem exam-'+examId} aria-hidden="true">{examId==='ielts'?<BookOpen/>:examId==='sat'?<Calculator/>:<Target/>}</span><p>{exam.subtitle[en?1:0]}</p></div><button className="secondary" onClick={()=>go('Календарь')}><CalendarDays size={17}/>{l('Календарь','Calendar')}</button></div>
+    <div className="exam-intro"><div><span className={'exam-emblem exam-'+examId} aria-hidden="true">{examId==='ielts'?<BookOpen/>:examId==='sat'?<Calculator/>:<Target/>}</span><p>{exam.subtitle[en?1:0]}</p></div><div className="exam-intro-actions">{examId==='ielts'&&<a className="ielts-course-link" href="https://ggielts.vercel.app" target="_blank" rel="noopener noreferrer"><BookOpen size={18}/><span>{l('Открыть IELTS Course','Open IELTS Course')}</span><ArrowUpRight size={16}/></a>}<button className="secondary" onClick={()=>go('Календарь')}><CalendarDays size={17}/>{l('Календарь','Calendar')}</button></div></div>
     <div className="exam-layout">
       <section className="exam-main">
         <div className="section-title"><h2>{l('Ресурсы для подготовки','Study resources')}</h2><button className="primary" onClick={()=>edit({kind:'resources',examId,examSection:section})}><Plus size={17}/>{l('Своя ссылка','Add a link')}</button></div>
