@@ -18,7 +18,11 @@ const call=(method,params={})=>new Promise((resolve,reject)=>{const id=++nextId;
 const evaluate=async expression=>{const result=await call('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});if(result.exceptionDetails)throw Error(JSON.stringify(result.exceptionDetails));return result.result.value};
 try{
   let ready=false;
-  for(let n=0;n<120;n++){if(await evaluate(`!!document.querySelector('main.page')`)){ready=true;break}await sleep(250)}
+  for(let n=0;n<120;n++){
+    if(await evaluate(`!!document.querySelector('main.page')`)){ready=true;break}
+    await evaluate(`(()=>{const button=document.querySelector('.account-guest:not(:disabled)');if(!button)return false;button.click();return true})()`);
+    await sleep(250);
+  }
   assert.ok(ready,'Installed application did not render');
   const read=`new Promise((resolve,reject)=>{const r=indexedDB.open('focusbase',1);r.onsuccess=()=>{const db=r.result,q=db.transaction('workspace').objectStore('workspace').get('personal');q.onsuccess=()=>{db.close();resolve(q.result)};q.onerror=()=>reject(q.error)}})`;
   if(mode==='seed'){
