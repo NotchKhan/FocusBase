@@ -60,7 +60,7 @@ NEXT_PUBLIC_SITE_URL=https://calisbase.vercel.app
 попадают в сборку. Публичный ключ допускается в браузере; секретные ключи,
 service_role и пароль БД недопустимы. Локальный `.env.local` исключён из Git.
 Для Windows-сборки публичные URL и publishable key передаются через GitHub
-Actions variables/secrets. Приложение открывает Google OAuth в системном браузере
+Actions variables. Приложение открывает Google OAuth в системном браузере
 и возвращается через зарегистрированный протокол `focusbase://app/`. Секрет Google
 и service-role key в установщик не попадают.
 
