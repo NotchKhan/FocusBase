@@ -22,7 +22,7 @@ function Check-Workspace([string]$exe, [string]$mode) {
   }
 }
 Install-Checked 'previous/outputs/desktop/ÇalışBase-Setup-1.0.7.exe'
-Check-Workspace (Join-Path $installRoot 'FocusBase.exe') 'seed'
+Check-Workspace (Join-Path $installRoot 'ÇalışBase.exe') 'seed'
 $before = Get-Content outputs/update-before.json -Raw
 Install-Checked 'outputs/desktop/ÇalışBase-Setup-1.0.8.exe'
 $newExe = Join-Path $installRoot 'ÇalışBase.exe'
