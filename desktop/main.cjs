@@ -12,9 +12,21 @@ app.setName('ÇalışBase');
 app.userAgentFallback=`Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) CalisBase/${app.getVersion()} Chrome/${process.versions.chrome} Electron/${process.versions.electron} Safari/537.36`;
 protocol.registerSchemesAsPrivileged([{scheme:'focusbase',privileges:{standard:true,secure:true,supportFetchAPI:true,corsEnabled:true}}]);
 if(!app.requestSingleInstanceLock())app.exit(0);
-let main,companion,tray,quitting=false,enabled=false,expanded=false,position,drag,moveTimer,menuWindow=null,pendingResize=null;
+let main,companion,tray,quitting=false,enabled=false,expanded=false,position,drag,moveTimer,menuWindow=null,pendingResize=null,pendingAuthUrl=null;
 if(smoke)setTimeout(()=>{console.error('Desktop smoke test timed out');app.exit(1)},45000).unref();
 const origin='focusbase://app';const prefsPath=()=>path.join(app.getPath('userData'),'desktop.json');
+function authCallback(value){
+  try{
+    const url=new URL(value);const allowed=new Set(['code','error','error_code','error_description']);
+    if(url.protocol!=='focusbase:'||url.hostname!=='app'||url.username||url.password||url.port||url.hash)return null;
+    if(!url.searchParams.has('code')&&!url.searchParams.has('error'))return null;
+    if([...url.searchParams.keys()].some(key=>!allowed.has(key)))return null;
+    url.pathname='/';return url.toString();
+  }catch{return null}
+}
+function callbackFrom(args){for(const value of args||[]){const callback=authCallback(value);if(callback)return callback}return null}
+function receiveAuth(value){const callback=authCallback(value);if(!callback)return false;pendingAuthUrl=callback;if(main&&!main.isDestroyed())void main.loadURL(callback).then(()=>showMain());return true}
+pendingAuthUrl=callbackFrom(process.argv);
 function prefs(){try{return JSON.parse(fs.readFileSync(prefsPath(),'utf8'))}catch{return {}}}
 function savePrefs(){fs.mkdirSync(path.dirname(prefsPath()),{recursive:true});fs.writeFileSync(prefsPath()+'.tmp',JSON.stringify({enabled,position}));fs.renameSync(prefsPath()+'.tmp',prefsPath())}
 function visibleBounds(bounds){const area=screen.getDisplayMatching(bounds).workArea;return {...bounds,x:Math.round(Math.max(area.x,Math.min(bounds.x,area.x+area.width-bounds.width))),y:Math.round(Math.max(area.y,Math.min(bounds.y,area.y+area.height-bounds.height)))}}
@@ -44,7 +56,7 @@ function createCompanion(){
   if(companion&&!companion.isDestroyed()){companion.setBounds(visibleBounds(companion.getBounds()));companion.setAlwaysOnTop(true,'floating');companion.show();return}
   const area=screen.getPrimaryDisplay().workArea;expanded=false;
   const bounds=visibleBounds({width:96,height:112,x:position?.x??area.x+area.width-120,y:position?.y??area.y+area.height-136});
-  companion=new BrowserWindow({...bounds,frame:false,transparent:true,resizable:false,skipTaskbar:true,show:false,alwaysOnTop:false,webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true,backgroundThrottling:false,additionalArguments:['--focusbase-companion']}});
+  companion=new BrowserWindow({...bounds,frame:false,transparent:true,resizable:false,skipTaskbar:true,show:false,alwaysOnTop:false,webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true,backgroundThrottling:false,additionalArguments:['--focusbase-companion',...(smoke?['--focusbase-smoke']:[])]}});
   const win=companion;
   protect(win);win.setAlwaysOnTop(true,'floating');
   win.once('ready-to-show',()=>{if(enabled&&companion===win&&!win.isDestroyed()&&!smoke)win.show()});
@@ -70,8 +82,12 @@ function showCompanionMenu(english){
     win.setAlwaysOnTop(true,'floating');if(!smoke)win.showInactive();
   }});return menu;
 }
-app.on('second-instance',()=>showMain());app.on('before-quit',()=>{rememberPosition();quitting=true});app.on('window-all-closed',()=>{if(!enabled)app.quit()});
+app.on('second-instance',(_event,commandLine)=>{if(!receiveAuth(callbackFrom(commandLine)))showMain()});
+app.on('open-url',(event,url)=>{event.preventDefault();receiveAuth(url)});
+app.on('before-quit',()=>{rememberPosition();quitting=true});app.on('window-all-closed',()=>{if(!enabled)app.quit()});
 app.whenReady().then(async()=>{
+  if(process.defaultApp&&process.argv[1])app.setAsDefaultProtocolClient('focusbase',process.execPath,[path.resolve(process.argv[1])]);
+  else app.setAsDefaultProtocolClient('focusbase');
   const siteRoot=app.isPackaged?path.join(process.resourcesPath,'site'):path.resolve(__dirname,'../out');
   protocol.handle('focusbase',async request=>{
     try{const url=new URL(request.url);if(url.hostname!=='app')return new Response('Not found',{status:404});const pathname=decodeURIComponent(url.pathname);const relative=pathname==='/'?'index.html':pathname.replace(/^\/+/, '');const file=path.resolve(siteRoot,relative);
@@ -83,11 +99,12 @@ app.whenReady().then(async()=>{
   const saved=prefs().position;if(saved&&Number.isFinite(saved.x)&&Number.isFinite(saved.y))position=saved;
   screen.on('display-removed',()=>{if(companion){companion.setBounds(visibleBounds(companion.getBounds()));rememberPosition()}});
   screen.on('display-metrics-changed',()=>{if(companion){companion.setBounds(visibleBounds(companion.getBounds()));rememberPosition()}});
-  main=new BrowserWindow({width:1320,height:900,minWidth:390,minHeight:600,show:false,title:'ÇalışBase',backgroundColor:'#f3f5f2',webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
+  main=new BrowserWindow({width:1320,height:900,minWidth:390,minHeight:600,show:false,title:'ÇalışBase',backgroundColor:'#f3f5f2',webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true,additionalArguments:smoke?['--focusbase-smoke']:[]}});
   main.setMenuBarVisibility(false);protect(main);
   main.on('close',event=>{if(quitting)return;if(enabled){event.preventDefault();main.hide()}else{quitting=true;app.quit()}});
   const icon=nativeImage.createFromPath(path.join(__dirname,'icon.png')).resize({width:16,height:16});tray=new Tray(icon);tray.setToolTip('ÇalışBase');tray.on('double-click',()=>showMain());updateMenu();
   ipcMain.handle('companion:get-enabled',event=>{trust(event);return enabled});
+  ipcMain.handle('auth:open',(event,value)=>{trust(event);try{const url=new URL(value);if(url.protocol!=='https:'||!url.hostname.endsWith('.supabase.co')||url.pathname!=='/auth/v1/authorize')return false;void shell.openExternal(url.toString());return true}catch{return false}});
   ipcMain.handle('companion:set-enabled',(event,value)=>{trust(event);return setEnabled(value===true)});
   ipcMain.handle('companion:expanded',(event,value)=>{trust(event);if(event.sender!==companion?.webContents)return;resizeCompanion(value===true)});
   ipcMain.on('companion:drag',(event,phase)=>{if(event.sender===companion?.webContents)dragCompanion(phase)});
@@ -98,9 +115,12 @@ app.whenReady().then(async()=>{
     else if(value.edit&&kinds.includes(value.edit.kind)){const edit={kind:value.edit.kind};for(const key of ['id','date'])if(typeof value.edit[key]==='string'&&value.edit[key].length<200)edit[key]=value.edit[key];showMain({edit})}
     resizeCompanion(false);
   });
-  await main.loadURL(origin+'/');if(!smoke)main.show();if(enabled)createCompanion();
+  await main.loadURL(pendingAuthUrl||origin+'/');pendingAuthUrl=null;if(!smoke)main.show();if(enabled)createCompanion();
   if(smoke){
     const assert=require('node:assert/strict');assert.equal(enabled,false);assert.equal(companion,undefined);
+    assert.equal(authCallback('focusbase://app/?code=desktop-test'),'focusbase://app/?code=desktop-test');
+    assert.equal(authCallback('focusbase://other/?code=desktop-test'),null);
+    assert.equal(authCallback('https://app/?code=desktop-test'),null);
     setEnabled(true);await new Promise((resolve,reject)=>{companion.webContents.once('did-finish-load',resolve);companion.webContents.once('did-fail-load',(_event,code,message)=>reject(Error(code+': '+message)))});
     assert.equal(companion.isAlwaysOnTop(),true);assert.equal(companion.webContents.getURL(),origin+'/#today');
     const dismissed=showCompanionMenu(false);assert.equal(enabled,true);resizeCompanion(false);

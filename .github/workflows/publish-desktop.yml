@@ -41,7 +41,7 @@ jobs:
       - name: Upload exact verified files and publish
         run: |
           target=$(node -p "require('./verified-run.json').head_sha")
-          gh release create v1.0.7 release/CalisBase-Setup-1.0.7.exe release/SHA256SUMS.txt release/antivirus-report.json release/installer-update-report.json --draft --target "$target" --title 'ÇalışBase 1.0.7 · NEXERA' --notes-file release-notes.md
-          gh api "repos/$GH_REPO/releases" --jq '.[] | select(.tag_name=="v1.0.7" and .draft==true)' > uploaded-release.json
+          gh release create v1.0.8 release/CalisBase-Setup-1.0.8.exe release/SHA256SUMS.txt release/antivirus-report.json release/installer-update-report.json --draft --target "$target" --title 'ÇalışBase 1.0.8 · NEXERA' --notes-file release-notes.md
+          gh api "repos/$GH_REPO/releases" --jq '.[] | select(.tag_name=="v1.0.8" and .draft==true)' > uploaded-release.json
           node scripts/prepare-verified-release.mjs verify-upload
-          gh release edit v1.0.7 --draft=false --latest
+          gh release edit v1.0.8 --draft=false --latest

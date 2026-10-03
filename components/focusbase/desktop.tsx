@@ -2,7 +2,7 @@
 import {useCompanionVisibility} from './use-companion-visibility';
 import {Monitor} from 'lucide-react';
 import {useApp,Check,type Edit} from './ui';
-declare global{interface Window{focusbaseDesktop?:{mini:boolean;getEnabled:()=>Promise<boolean>;setEnabled:(value:boolean)=>Promise<boolean>;setExpanded:(value:boolean)=>Promise<void>;drag:(phase:'start'|'move'|'end')=>void;showMenu:(english:boolean)=>void;onEnabled:(callback:(enabled:boolean)=>void)=>()=>void;open:(payload:{view?:string;edit?:Edit})=>Promise<void>;onOpen:(callback:(payload:{view?:string;edit?:Edit})=>void)=>()=>void}}}
+declare global{interface Window{focusbaseDesktop?:{mini:boolean;smoke:boolean;openAuth:(url:string)=>Promise<boolean>;getEnabled:()=>Promise<boolean>;setEnabled:(value:boolean)=>Promise<boolean>;setExpanded:(value:boolean)=>Promise<void>;drag:(phase:'start'|'move'|'end')=>void;showMenu:(english:boolean)=>void;onEnabled:(callback:(enabled:boolean)=>void)=>()=>void;open:(payload:{view?:string;edit?:Edit})=>Promise<void>;onOpen:(callback:(payload:{view?:string;edit?:Edit})=>void)=>()=>void}}}
 export function DesktopSettings(){
   const {s,run,language}=useApp();const en=language==='en';const {available,enabled,busy,error,change}=useCompanionVisibility();
   return <section data-localized className="panel form-stack"><h2><Monitor size={21}/> {en?'ÇalışBase icon':'Иконка ÇalışBase'}</h2>
@@ -10,7 +10,7 @@ export function DesktopSettings(){
       <Check checked={enabled} onChange={value=>{if(!busy)void change(value)}}>{en?'Show above other windows':'Показывать поверх других окон'}</Check>
       <p className="muted">{en?'Drag the icon to move it. Right-click → Hide icon removes it from the desktop. Enable this switch to bring it back.':'Перетаскивай иконку мышью. ПКМ → «Убрать иконку» скроет её с рабочего стола. Этот переключатель вернёт её обратно.'}</p>
       <p className="muted">{en?'Closing the main window keeps the visible companion running. Use the tray menu to quit completely.':'После закрытия главного окна включённый питомец продолжит работать. Полностью выйти можно через значок ÇalışBase рядом с часами Windows.'}</p>
-      <p className="muted">{en?'Browser and desktop data are separate. Transfer your workspace using a JSON backup below.':'У браузера и настольной версии отдельные данные. Перенеси своё пространство через JSON-копию в разделе ниже.'}</p>
+      <p className="muted">{en?'Sign in with the same Google account on the website and in the app to use one synced workspace. Guest records stay only on this computer.':'Войди с тем же Google-аккаунтом на сайте и в приложении, чтобы пользоваться одним синхронизированным пространством. Гостевые записи остаются только на этом компьютере.'}</p>
     </>:<>
       <Check checked={s.settings.companionVisible} onChange={value=>void run(d=>{d.settings.companionVisible=value})}>{en?'Show quick access icon':'Показывать иконку быстрого доступа'}</Check>
       <p className="muted">{en?'Right-click the icon → Hide icon. You can bring it back here. Hiding it keeps your tasks and timer.':'ПКМ по иконке → «Убрать иконку». Вернуть её можно здесь. Задачи и таймер сохранятся.'}</p>

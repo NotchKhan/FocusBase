@@ -1,7 +1,7 @@
 {
   "name": "focusbase-desktop",
   "productName": "ÇalışBase",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "ÇalışBase desktop study companion",
   "author": "NEXERA",
   "private": true,
@@ -14,6 +14,12 @@
   "build": {
     "copyright": "Copyright © 2026 NEXERA",
     "appId": "app.focusbase.desktop",
+    "protocols": [
+      {
+        "name": "ÇalışBase account sign-in",
+        "schemes": ["focusbase"]
+      }
+    ],
     "electronDist": "node_modules/electron/dist",
     "directories": {
       "output": "../outputs/desktop"

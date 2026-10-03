@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  ...(process.env.FOCUSBASE_DESKTOP === '1' ? {output:'export' as const,env:{NEXT_PUBLIC_CLOUD_AUTH_ENABLED:'false'}} : {}),
+  ...(process.env.FOCUSBASE_DESKTOP === '1' ? {output:'export' as const} : {}),
   ...(process.env.FOCUSBASE_DESKTOP === '1' ? {} : {async headers(){return [{source:'/(.*)',headers:[
     {key:'X-Content-Type-Options',value:'nosniff'},
     {key:'X-Frame-Options',value:'DENY'},

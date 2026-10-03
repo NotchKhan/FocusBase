@@ -22,6 +22,11 @@ function ConnectedBoundary({children}:{children:ReactNode}){
   useEffect(()=>{
     let live=true;identity.current=undefined;
     queueMicrotask(()=>{if(live){try{setEn(localStorage.getItem('focusbase-language')==='en')}catch{}}});
+    if(window.focusbaseDesktop?.smoke){
+      const ticket=++sequence.current;
+      void configureWorkspace(null).then(()=>{if(live&&ticket===sequence.current){setMode('guest');setError('')}}).catch(()=>{if(live)setMode('gate')});
+      return()=>{live=false;suspendWorkspace()};
+    }
     const transition=(session:Session|null,event:string)=>{
       if(!live)return;
       const id=session?.user.id??null;
@@ -59,7 +64,7 @@ function ConnectedBoundary({children}:{children:ReactNode}){
   },[]);
   const signIn=async()=>{
     setBusy(true);setError('');
-    try{const {error}=await cloudClient().auth.signInWithOAuth({provider:'google',options:{redirectTo:signInRedirect(),queryParams:{prompt:'select_account'}}});if(error)throw error}
+    try{const desktop=window.focusbaseDesktop;const {data,error}=await cloudClient().auth.signInWithOAuth({provider:'google',options:{redirectTo:signInRedirect(),skipBrowserRedirect:Boolean(desktop),queryParams:{prompt:'select_account'}}});if(error)throw error;if(desktop){if(!data.url||!await desktop.openAuth(data.url))throw Error('OAuth launch failed')}}
     catch{setError(en?'Google sign-in is unavailable. Check your connection or try again later.':'Вход через Google пока недоступен. Проверь соединение или попробуй позже.');setBusy(false)}
   };
   const signOut=async()=>{
@@ -83,7 +88,7 @@ function ConnectedBoundary({children}:{children:ReactNode}){
     <div className="account-card"><div className="account-brand"><span className="brand-mark"><Focus size={23}/></span><b>ÇalışBase</b><div className="language-toggle"><button aria-pressed={!en} onClick={()=>{setEn(false);localStorage.setItem('focusbase-language','ru')}}>RU</button><button aria-pressed={en} onClick={()=>{setEn(true);localStorage.setItem('focusbase-language','en')}}>EN</button></div></div>
       <p className="eyebrow">{en?'YOUR OWN SPACE':'ТВОЁ ПРОСТРАНСТВО'}</p>
       <h1>{en?'Your plans.\nAlways with you.':'Твои планы.\nВсегда с тобой.'}</h1>
-      <p className="account-description">{en?'Tasks, notes and study progress — one account for all your browsers.':'Задачи, заметки и прогресс в учёбе — один аккаунт для всех твоих браузеров.'}</p>
+      <p className="account-description">{en?'Tasks, notes and study progress — one account on the website and in the app.':'Задачи, заметки и прогресс в учёбе — один аккаунт на сайте и в приложении.'}</p>
       {mode==='loading'?<p role="status">{en?'Opening your workspace…':'Открываем твоё пространство…'}</p>:<>
         <button className="primary account-google" disabled={busy} onClick={()=>void signIn()}><span aria-hidden="true">G</span>{busy?(en?'Please wait…':'Подожди…'):(en?'Continue with Google':'Продолжить с Google')}</button>
         <p className="account-fineprint">{en?'Your account is created on first sign-in. Your email and profile are used to identify your account. Workspace data is stored in Supabase.':'При первом входе аккаунт создастся автоматически. Почта и профиль нужны для входа, записи пространства хранятся в Supabase.'}</p>

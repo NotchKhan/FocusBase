@@ -14,6 +14,9 @@ jobs:
   verify:
     runs-on: windows-2022
     timeout-minutes: 45
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -34,9 +37,9 @@ jobs:
         run: ./scripts/verify-installer-antivirus.ps1
       - uses: actions/checkout@v4
         with:
-          ref: f6eea2acc8d1c7701f1b53706cf60a4738d56f08
+          ref: v1.0.7
           path: previous
-      - name: Build the previous 1.0.6 installer for update testing
+      - name: Build the previous 1.0.7 installer for update testing
         shell: pwsh
         run: |
           Set-Location previous
@@ -57,9 +60,9 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force outputs/release | Out-Null
-          Copy-Item -LiteralPath 'outputs/desktop/ÇalışBase-Setup-1.0.7.exe' -Destination 'outputs/release/CalisBase-Setup-1.0.7.exe'
-          $hash = (Get-FileHash 'outputs/release/CalisBase-Setup-1.0.7.exe' -Algorithm SHA256).Hash.ToLowerInvariant()
-          "$hash  CalisBase-Setup-1.0.7.exe" | Set-Content outputs/release/SHA256SUMS.txt -Encoding utf8NoBOM
+          Copy-Item -LiteralPath 'outputs/desktop/ÇalışBase-Setup-1.0.8.exe' -Destination 'outputs/release/CalisBase-Setup-1.0.8.exe'
+          $hash = (Get-FileHash 'outputs/release/CalisBase-Setup-1.0.8.exe' -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  CalisBase-Setup-1.0.8.exe" | Set-Content outputs/release/SHA256SUMS.txt -Encoding utf8NoBOM
           Copy-Item outputs/antivirus-report.json,outputs/installer-update-report.json outputs/release/
       - uses: actions/upload-artifact@v4
         with:

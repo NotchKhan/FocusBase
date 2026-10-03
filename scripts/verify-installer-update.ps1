@@ -21,15 +21,15 @@ function Check-Workspace([string]$exe, [string]$mode) {
     if (-not $process.WaitForExit(10000)) { Stop-Process -Id $process.Id -Force }
   }
 }
-Install-Checked 'previous/outputs/desktop/FocusBase-Setup-1.0.6.exe'
+Install-Checked 'previous/outputs/desktop/ÇalışBase-Setup-1.0.7.exe'
 Check-Workspace (Join-Path $installRoot 'FocusBase.exe') 'seed'
 $before = Get-Content outputs/update-before.json -Raw
-Install-Checked 'outputs/desktop/ÇalışBase-Setup-1.0.7.exe'
+Install-Checked 'outputs/desktop/ÇalışBase-Setup-1.0.8.exe'
 $newExe = Join-Path $installRoot 'ÇalışBase.exe'
 if (-not (Test-Path -LiteralPath $newExe)) { throw 'Updated executable missing' }
 Check-Workspace $newExe 'verify'
 # A repeat install must also preserve the same workspace.
-Install-Checked 'outputs/desktop/ÇalışBase-Setup-1.0.7.exe'
+Install-Checked 'outputs/desktop/ÇalışBase-Setup-1.0.8.exe'
 Check-Workspace $newExe 'verify'
 $info = (Get-Item -LiteralPath $newExe).VersionInfo
 if ($info.CompanyName -ne 'NEXERA') { throw "Unexpected executable publisher: $($info.CompanyName)" }
@@ -40,9 +40,9 @@ $env:FOCUSBASE_SMOKE_PROFILE = Join-Path $env:RUNNER_TEMP 'calisbase-installed-s
 $smoke = Start-Process -FilePath $newExe -ArgumentList '--smoke-test' -WindowStyle Hidden -PassThru -RedirectStandardOutput outputs/installed-smoke.log -RedirectStandardError outputs/installed-smoke-error.log
 if (-not $smoke.WaitForExit(60000) -or $smoke.ExitCode -ne 0) { throw 'Installed companion smoke test failed' }
 @{
-  result='passed'; fromVersion='1.0.6'; toVersion='1.0.7'; publisher=$info.CompanyName;
+  result='passed'; fromVersion='1.0.7'; toVersion='1.0.8'; publisher=$info.CompanyName;
   cleanInstall=$true; upgrade=$true; repeatInstall=$true; installedLaunch=$true; companionSmoke=$true;
   preserved=@('tasks','notes','projects','resources','tables','settings','language','IndexedDB origin');
   testedAt=(Get-Date).ToUniversalTime().ToString('o'); sourceCommit=$env:GITHUB_SHA;
-  installerSha256=(Get-FileHash 'outputs/desktop/ÇalışBase-Setup-1.0.7.exe' -Algorithm SHA256).Hash
+  installerSha256=(Get-FileHash 'outputs/desktop/ÇalışBase-Setup-1.0.8.exe' -Algorithm SHA256).Hash
 } | ConvertTo-Json | Set-Content outputs/installer-update-report.json -Encoding utf8NoBOM

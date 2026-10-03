@@ -16,6 +16,7 @@ export function cloudClient(){
   return client;
 }
 export function signInRedirect(){
+  if(window.focusbaseDesktop)return 'focusbase://app/';
   const url=new URL(process.env.NEXT_PUBLIC_SITE_URL||'https://calisbase.vercel.app');
   if(url.protocol!=='https:'||url.username||url.password)throw Error('Некорректный адрес возврата после входа.');
   if(window.location.origin===url.origin)return url.origin+'/';

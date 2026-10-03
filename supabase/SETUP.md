@@ -38,6 +38,7 @@ Supabase → Authentication → Sign In / Providers → Google:
 Supabase → Authentication → URL Configuration:
 - Site URL: `https://calisbase.vercel.app`
 - Redirect URLs: `https://calisbase.vercel.app/`
+- Для установленного Windows-приложения добавить точный redirect URL `focusbase://app/`.
 - Для локальной проверки добавить `http://127.0.0.1:5173/`.
 
 Не использовать общий wildcard для production или preview-доменов.
@@ -58,7 +59,10 @@ NEXT_PUBLIC_SITE_URL=https://calisbase.vercel.app
 После настройки базы и Google выполнить новый deploy/redeploy: `NEXT_PUBLIC_*`
 попадают в сборку. Публичный ключ допускается в браузере; секретные ключи,
 service_role и пароль БД недопустимы. Локальный `.env.local` исключён из Git.
-Для Windows-сборки облачная авторизация принудительно отключена.
+Для Windows-сборки публичные URL и publishable key передаются через GitHub
+Actions variables/secrets. Приложение открывает Google OAuth в системном браузере
+и возвращается через зарегистрированный протокол `focusbase://app/`. Секрет Google
+и service-role key в установщик не попадают.
 
 ## 4. Проверка перед включением для всех
 

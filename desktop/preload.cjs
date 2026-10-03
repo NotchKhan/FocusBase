@@ -1,6 +1,8 @@
 const {contextBridge,ipcRenderer}=require('electron');
 contextBridge.exposeInMainWorld('focusbaseDesktop',{
   mini:process.argv.includes('--focusbase-companion'),
+  smoke:process.argv.includes('--focusbase-smoke'),
+  openAuth:url=>ipcRenderer.invoke('auth:open',url),
   getEnabled:()=>ipcRenderer.invoke('companion:get-enabled'),
   setEnabled:value=>ipcRenderer.invoke('companion:set-enabled',value===true),
   setExpanded:value=>ipcRenderer.invoke('companion:expanded',value===true),
